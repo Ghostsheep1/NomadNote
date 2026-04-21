@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Archive, Upload, Sparkles, Map } from "lucide-react";
+import { Plus, Search, Upload, Map, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { TripCard } from "@/components/TripCard";
 import { TripForm } from "@/components/TripForm";
+import { HomeDashboard } from "@/components/HomeDashboard";
 import { useTripsStore } from "@/store/trips";
-import { importTrip, db } from "@/lib/db";
+import { importTrip } from "@/lib/db";
 import { readFileAsText } from "@/lib/utils";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
@@ -40,7 +41,7 @@ export default function HomePage() {
       const trip = await importTrip(bundle);
       await loadTrips();
       toast.success(`"${trip.name}" imported!`);
-      router.push(`/trips/${trip.id}`);
+      router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
     } catch {
       toast.error("Import failed — invalid file format");
     }
@@ -55,61 +56,70 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold mb-1">Your trips</h1>
-        <p className="text-muted-foreground">
-          {active.length} active trip{active.length !== 1 ? "s" : ""} · All data stored locally
-        </p>
-      </div>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8">
+      <HomeDashboard
+        trips={trips}
+        onCreateTrip={() => setCreateOpen(true)}
+        onImportTrip={() => fileRef.current?.click()}
+      />
 
       {/* Toolbar */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search trips…"
-            className="pl-9"
+            className="h-10 border-transparent bg-muted/60 pl-9 shadow-none focus-visible:bg-background"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => fileRef.current?.click()}
-          title="Import trip JSON"
-        >
-          <Upload className="h-4 w-4" />
-        </Button>
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-1.5" /> New trip
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+            title="Import trip JSON"
+            className="flex-1 sm:flex-none"
+          >
+            <Upload className="h-4 w-4 mr-1.5" />
+            Import
+          </Button>
+          <Button onClick={() => setCreateOpen(true)} className="flex-1 sm:flex-none">
+            <Plus className="h-4 w-4 mr-1.5" /> New trip
+          </Button>
+        </div>
         <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
       </div>
 
-      {/* Tabs: active / archived */}
-      <div className="flex gap-1 mb-5 bg-muted rounded-lg p-1 w-fit">
-        {[
-          { label: `Active (${active.length})`, value: false },
-          { label: `Archived (${archived.length})`, value: true },
-        ].map(({ label, value }) => (
-          <button
-            key={String(value)}
-            onClick={() => setShowArchived(value)}
-            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-              showArchived === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="font-display text-2xl font-semibold">{showArchived ? "Archived trips" : "Active trips"}</h2>
+          <p className="text-sm text-muted-foreground">
+            {filtered.length} visible · {active.length} active · {archived.length} archived
+          </p>
+        </div>
+        <div className="flex gap-1 rounded-xl bg-muted p-1">
+          {[
+            { label: `Active`, value: false },
+            { label: `Archived`, value: true },
+          ].map(({ label, value }) => (
+            <button
+              key={String(value)}
+              onClick={() => setShowArchived(value)}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                showArchived === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Trip grid */}
       {filtered.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid gap-4 lg:grid-cols-2">
           <AnimatePresence mode="popLayout">
             {filtered.map((trip) => (
               <TripCard key={trip.id} trip={trip} onDelete={setDeleteTarget} />
@@ -152,7 +162,7 @@ export default function HomePage() {
           <TripForm
             onSave={(trip) => {
               setCreateOpen(false);
-              router.push(`/trips/${trip.id}`);
+              router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
             }}
             onCancel={() => setCreateOpen(false)}
           />

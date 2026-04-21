@@ -17,6 +17,14 @@ A local-first, privacy-first travel planner. No account. No server. No tracking.
 | JSON export/import | ✅ | ❌ |
 | Open source maps | ✅ | ❌ |
 
+## Portfolio highlights
+
+- **Private by default**: no account, no login, no mandatory backend, local IndexedDB storage.
+- **Capture-first workflow**: paste map links, social links, articles, coordinates, addresses, or plain notes and confirm extracted candidates before saving.
+- **Smart travel intelligence**: itinerary grouping, overload detection, rainy-day alternatives, random spot picker, budget view, packing checklist, and free-place filtering.
+- **Polished product UI**: responsive dashboard, rich trip cards, trip health brief, command palette, dark mode, installable PWA shell, and iOS packaging with Capacitor.
+- **Engineering depth**: typed domain models, Dexie repositories, Zustand stores, transparent heuristic algorithms, import/export, and tests for extraction and itinerary logic.
+
 ## Tech stack
 
 - **Framework**: Next.js 14 App Router + TypeScript
@@ -37,7 +45,7 @@ nomadnote/
 ├── app/                    # Next.js App Router pages
 │   ├── layout.tsx          # Root layout + providers
 │   ├── page.tsx            # Home — trip list
-│   ├── trips/[id]/page.tsx # Trip detail (places, map, itinerary, packing)
+│   ├── trips/page.tsx     # Trip detail (static-export safe, uses ?id=)
 │   └── settings/page.tsx   # Settings + privacy
 ├── components/             # Shared UI components
 │   ├── ui/                 # Primitives (button, card, dialog, etc.)

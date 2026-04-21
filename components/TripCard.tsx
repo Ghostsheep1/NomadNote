@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { MapPin, Calendar, Archive, Copy, Trash2, MoreVertical, Download, Unlock } from "lucide-react";
-import { cn, formatDate, tripDuration, PRICE_LABELS } from "@/lib/utils";
+import { MapPin, Calendar, Archive, Copy, Trash2, MoreVertical, Download, Route, Heart, CheckCircle2 } from "lucide-react";
+import { cn, formatDate, tripDuration } from "@/lib/utils";
 import type { Trip } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,7 +24,12 @@ interface TripCardProps {
 
 export function TripCard({ trip, onDelete }: TripCardProps) {
   const { duplicateTrip, archiveTrip } = useTripsStore();
-  const placeCount = useLiveQuery(() => db.places.where("tripId").equals(trip.id).count(), [trip.id]) ?? 0;
+  const tripPlaces = useLiveQuery(() => db.places.where("tripId").equals(trip.id).toArray(), [trip.id]) ?? [];
+  const placeCount = tripPlaces.length;
+  const visitedCount = tripPlaces.filter((place) => place.visited).length;
+  const favoriteCount = tripPlaces.filter((place) => place.favorite).length;
+  const mappedCount = tripPlaces.filter((place) => typeof place.latitude === "number" && typeof place.longitude === "number").length;
+  const progress = placeCount ? Math.round((visitedCount / placeCount) * 100) : 0;
 
   const handleExport = async () => {
     try {
@@ -51,19 +56,21 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.97 }}
     >
-      <Link href={`/trips/${trip.id}`} className="block group">
+      <Link href={`/trips?id=${encodeURIComponent(trip.id)}`} className="block group">
         <div className={cn(
-          "relative rounded-2xl border bg-card overflow-hidden transition-all duration-200",
-          "hover:shadow-md hover:border-primary/20",
+          "group/card relative overflow-hidden rounded-[22px] border bg-card transition-all duration-200",
+          "hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/25",
           trip.archived && "opacity-60"
         )}>
-          {/* Color band at top based on emoji */}
-          <div className="h-1.5 bg-gradient-to-r from-primary/60 via-accent/60 to-secondary/60" />
+          <div className="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_12%_10%,hsl(var(--primary)/0.16),transparent_34%),radial-gradient(circle_at_88%_10%,hsl(var(--secondary)/0.16),transparent_32%)]" />
+          <div className="h-1.5 bg-gradient-to-r from-primary/70 via-accent/70 to-secondary/70" />
 
-          <div className="p-5">
+          <div className="relative p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-3xl leading-none flex-shrink-0">{trip.emoji ?? "✈️"}</span>
+                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/80 text-3xl leading-none shadow-sm backdrop-blur">
+                  {trip.emoji ?? "✈️"}
+                </span>
                 <div className="min-w-0">
                   <h3 className="font-display font-semibold text-base leading-tight truncate group-hover:text-primary transition-colors">
                     {trip.name}
@@ -79,7 +86,7 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
                   <Button
                     size="icon-sm"
                     variant="ghost"
-                    className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 transition-opacity"
                     onClick={(e) => e.preventDefault()}
                   >
                     <MoreVertical className="h-4 w-4" />
@@ -129,10 +136,23 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
               </span>
             </div>
 
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <MiniStat icon={<CheckCircle2 />} label="Visited" value={`${progress}%`} />
+              <MiniStat icon={<Heart />} label="Loved" value={favoriteCount} />
+              <MiniStat icon={<MapPin />} label="Pinned" value={`${mappedCount}/${placeCount || 0}`} />
+            </div>
+
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            </div>
+
             <div className="flex items-center gap-2 mt-3">
               <Badge variant="secondary" className="text-xs capitalize">{trip.budgetStyle}</Badge>
               {trip.itinerary && trip.itinerary.length > 0 && (
-                <Badge variant="success" className="text-xs">Itinerary ready</Badge>
+                <Badge variant="success" className="text-xs">
+                  <Route className="mr-1 h-3 w-3" />
+                  Itinerary ready
+                </Badge>
               )}
               {trip.archived && <Badge variant="muted" className="text-xs">Archived</Badge>}
               {isDemo && <Badge variant="warning" className="text-xs">Demo</Badge>}
@@ -141,5 +161,17 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
         </div>
       </Link>
     </motion.div>
+  );
+}
+
+function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl bg-background/75 px-3 py-2 shadow-sm ring-1 ring-border/60">
+      <div className="flex items-center gap-1.5 text-muted-foreground [&>svg]:h-3 [&>svg]:w-3">
+        {icon}
+        <span className="text-[11px] font-medium">{label}</span>
+      </div>
+      <div className="mt-1 text-sm font-bold tabular-nums">{value}</div>
+    </div>
   );
 }

@@ -1,18 +1,16 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
-  MapPin, List, Calendar, BookOpen, Package, CreditCard,
-  Settings2, ArrowLeft, Plus, Wand2, Search, SlidersHorizontal,
-  Shuffle, Download, Umbrella, Check,
+  MapPin, List, Calendar, Package,
+  Settings2, ArrowLeft, Plus, Search,
+  Shuffle, Download, Umbrella,
 } from "lucide-react";
 import { cn, downloadJSON, formatDate, tripDuration } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PlaceCard } from "@/components/PlaceCard";
 import { PlaceForm } from "@/components/PlaceForm";
 import { MapView } from "@/components/MapView";
@@ -20,10 +18,10 @@ import { CaptureInbox } from "@/components/CaptureInbox";
 import { ItineraryBuilder } from "@/components/ItineraryBuilder";
 import { TripForm } from "@/components/TripForm";
 import { PackingList } from "@/components/PackingList";
+import { TripBrief } from "@/components/TripBrief";
 import { useTripsStore } from "@/store/trips";
 import { usePlacesStore } from "@/store/places";
 import { useUIStore } from "@/store/ui";
-import { FilterBar } from "@/components/FilterBar";
 import { ItineraryTextExport } from "@/components/ItineraryTextExport";
 import { exportTrip } from "@/lib/db";
 import { pickRandomSpot, findRainyDayAlternatives } from "@/features/itinerary/algorithm";
@@ -34,15 +32,15 @@ import type { Place, Trip } from "@/lib/types";
 type Tab = "places" | "map" | "itinerary" | "packing" | "settings";
 
 export default function TripPage() {
-  const { id } = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const router = useRouter();
-  const { trips, setActiveTrip, updateTrip } = useTripsStore();
+  const { trips, setActiveTrip } = useTripsStore();
   const { places, loadPlaces, filteredPlaces, setFilters, filters, deletePlace } = usePlacesStore();
   const { activeTripTab, setActiveTripTab } = useUIStore();
 
   const trip = trips.find((t) => t.id === id);
 
-  const [addPlaceOpen, setAddPlaceOpen] = useState(false);
   const [captureOpen, setCaptureOpen] = useState(false);
   const [editPlace, setEditPlace] = useState<Place | null>(null);
   const [editTripOpen, setEditTripOpen] = useState(false);
@@ -168,6 +166,7 @@ export default function TripPage() {
         {/* PLACES */}
         {tab === "places" && (
           <div className="h-full flex flex-col">
+            <TripBrief trip={trip} places={places} />
             <div className="px-4 py-3 border-b border-border flex items-center gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />

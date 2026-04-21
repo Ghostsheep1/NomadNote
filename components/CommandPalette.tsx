@@ -92,7 +92,7 @@ export function CommandPalette() {
                   <CmdItem
                     key={trip.id}
                     icon={<span className="text-sm">{trip.emoji}</span>}
-                    onSelect={() => run(() => router.push(`/trips/${trip.id}`))}
+                    onSelect={() => run(() => router.push(`/trips?id=${encodeURIComponent(trip.id)}`))}
                   >
                     {trip.name}
                     {trip.startDate && <span className="text-muted-foreground text-xs ml-auto">{trip.startDate.slice(0, 7)}</span>}
@@ -109,7 +109,7 @@ export function CommandPalette() {
                     key={place.id}
                     icon={<Globe className="h-3.5 w-3.5" />}
                     onSelect={() => run(() => {
-                      router.push(`/trips/${activeTrip.id}`);
+                      router.push(`/trips?id=${encodeURIComponent(activeTrip.id)}`);
                       setTimeout(() => setSelectedPlace(place.id), 100);
                     })}
                   >

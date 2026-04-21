@@ -91,10 +91,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {recentTrips.map((trip) => (
                 <Link
                   key={trip.id}
-                  href={`/trips/${trip.id}`}
+                  href={`/trips?id=${encodeURIComponent(trip.id)}`}
                   className={cn(
                     "flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors",
-                    pathname === `/trips/${trip.id}`
+                    pathname === "/trips"
                       ? "bg-primary/10 text-primary font-medium"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
