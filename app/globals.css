@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=DM+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -55,20 +55,20 @@
   * { @apply border-border; }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background:
       radial-gradient(circle at 12% -10%, hsl(var(--primary) / 0.10), transparent 28rem),
       radial-gradient(circle at 100% 0%, hsl(var(--secondary) / 0.10), transparent 24rem),
       hsl(var(--background));
   }
-  h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; }
+  h1, h2, h3 { font-family: 'Fraunces', 'Inter', Georgia, serif; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
 }
 
 @layer utilities {
-  .font-display { font-family: 'Playfair Display', Georgia, serif; }
+  .font-display { font-family: 'Fraunces', 'Inter', Georgia, serif; }
   .font-mono-custom { font-family: 'DM Mono', monospace; }
 
   .travel-hero-surface {

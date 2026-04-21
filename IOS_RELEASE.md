@@ -7,7 +7,10 @@ NomadNote is built as a local-first web app and packaged for iOS with Capacitor.
 1. Install Xcode from the Mac App Store.
 2. Install Node.js 20+ from https://nodejs.org.
 3. Enroll in the Apple Developer Program.
-4. In App Store Connect, create an app named `NomadNote` with bundle ID `app.nomadnote.travel`.
+4. Create an explicit Bundle ID in Apple Developer:
+   - Bundle ID: `app.nomadnote.travel`
+   - Capabilities: none required for MVP
+5. In App Store Connect, create an app named `NomadNote` with bundle ID `app.nomadnote.travel`.
 
 ## Local build
 
@@ -30,7 +33,16 @@ In Xcode:
 - Set the team to your Apple Developer account.
 - Confirm bundle identifier: `app.nomadnote.travel`.
 - Set display name: `NomadNote`.
-- Add the generated app icons from `public/icon-192.png` and `public/icon-512.png` as the source artwork for the iOS icon set.
+- Set deployment target to iOS 16 or newer.
+- Replace placeholder icons with a final 1024x1024 source icon, then generate the full AppIcon set.
+
+## Local simulator testing
+
+In Xcode:
+
+1. Select an iPhone simulator.
+2. Press Run.
+3. Test first launch, demo data, trip creation, capture inbox, map tab, itinerary tab, packing tab, settings, and offline relaunch.
 
 ## TestFlight
 
@@ -45,6 +57,13 @@ Then in Xcode:
 3. Distribute App > App Store Connect > Upload.
 4. Add internal testers in App Store Connect.
 
+If upload fails, check:
+
+- Signing team is selected.
+- Bundle ID matches App Store Connect.
+- Build number is higher than previous uploads.
+- Static web build exists by running `npm run ios:sync`.
+
 ## App Store review notes
 
 Use this privacy description:
@@ -58,6 +77,8 @@ Suggested App Store subtitle:
 Suggested keywords:
 
 > travel planner,itinerary,offline,map,packing,journal,trip organizer
+
+Use the longer App Store text in `docs/APP_STORE_METADATA.md`.
 
 ## Before public launch
 

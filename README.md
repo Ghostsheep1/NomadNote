@@ -1,130 +1,171 @@
 # NomadNote
 
-A local-first, privacy-first travel planner. No account. No server. No tracking.
+Local-first travel planning for people who save too many places and need a trip that will actually feel good in real life.
 
-## Why better than Roamy
+NomadNote is a private, no-account travel planner with a unique **Trip Stress Radar**. It does not just store places or generate an itinerary. It warns when the plan is becoming overloaded, under-pinned, weather-fragile, FOMO-heavy, or spread across too many neighborhoods.
 
-| Feature | NomadNote | Roamy |
-|---|---|---|
-| No account needed | ✅ | ❌ |
-| 100% free | ✅ | ❌ |
-| Local-first storage | ✅ | ❌ |
-| Algorithm explanations | ✅ | ❌ |
-| Rainy day planner | ✅ | ❌ |
-| Overload detector | ✅ | ❌ |
-| Travel pain score | ✅ | ❌ |
-| Packing list | ✅ | ❌ |
-| JSON export/import | ✅ | ❌ |
-| Open source maps | ✅ | ❌ |
+## Why It Exists
 
-## Portfolio highlights
+Most travel planners optimize for adding more: more places, more lists, more days, more pins. Real trips fail for the opposite reason. Too many must-sees, too much backtracking, no rainy-day fallback, and no honest signal that the itinerary is turning into work.
 
-- **Private by default**: no account, no login, no mandatory backend, local IndexedDB storage.
-- **Capture-first workflow**: paste map links, social links, articles, coordinates, addresses, or plain notes and confirm extracted candidates before saving.
-- **Smart travel intelligence**: itinerary grouping, overload detection, rainy-day alternatives, random spot picker, budget view, packing checklist, and free-place filtering.
-- **Unique differentiator**: Trip Stress Radar scores overload, missing pins, weather resilience, FOMO load, and neighborhood spread, then suggests one rescue move.
-- **Polished product UI**: responsive dashboard, rich trip cards, trip health brief, command palette, dark mode, installable PWA shell, and iOS packaging with Capacitor.
-- **Engineering depth**: typed domain models, Dexie repositories, Zustand stores, transparent heuristic algorithms, import/export, and tests for extraction and itinerary logic.
+NomadNote is built around **Anti-Itinerary Mode**:
 
-## Tech stack
+> Plan enough to feel confident, not so much that the trip becomes homework.
 
-- **Framework**: Next.js 14 App Router + TypeScript
-- **Styling**: Tailwind CSS + Playfair Display / DM Sans
-- **State**: Zustand (UI + domain stores)
-- **DB**: Dexie + IndexedDB (local-first)
-- **Map**: MapLibre GL + OpenStreetMap (free, no API key)
-- **Geocoding**: Nominatim (free, no API key)
-- **Forms**: React Hook Form + Zod
-- **Drag/drop**: dnd-kit
-- **Animations**: Framer Motion
-- **Toasts**: Sonner
+## Product Differentiator
+
+### Trip Stress Radar
+
+Trip Stress Radar scores a trip from `0` to `100` using:
+
+- **Overload**: too many stops per day
+- **Pin debt**: saved places without coordinates
+- **Rain risk**: not enough indoor or flexible backups
+- **FOMO load**: too many places marked essential
+- **City spread**: too many neighborhoods or long-distance clusters
+- **Resilience**: how well the plan survives delays, tired feet, and weather
+
+It then gives one clear rescue move, such as:
+
+- Move one low-priority stop into backups
+- Add indoor fallbacks near the densest neighborhood
+- Pin unmapped saves before trusting itinerary generation
+- Choose one anchor must-see per day
+- Split days by neighborhood instead of category
+
+This is the core reason someone would use NomadNote over a generic notes app, spreadsheet, Google Maps list, or itinerary generator.
+
+## Screenshots
+
+Screenshots should be added to `docs/screenshots/` before publishing the GitHub repo publicly.
+
+Recommended hero images:
+
+- `01-home-dashboard.png`
+- `02-trip-stress-radar.png`
+- `03-map-view.png`
+- `04-capture-inbox.png`
+- `05-itinerary-builder.png`
+- `06-privacy-settings.png`
+
+See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for capture instructions and App Store screenshot captions.
+
+## Feature List
+
+- Local-first storage with Dexie and IndexedDB
+- No account, login, email, phone number, or mandatory backend
+- Capture inbox for URLs, coordinates, screenshots, addresses, and free text
+- Pragmatic parser for Google Maps, Apple Maps, OpenStreetMap, social links, and text notes
+- Candidate confidence labels, with user confirmation before saving
+- Trip creation, archive, duplicate, JSON import/export
+- Place attributes: priority, tags, category, price, best time, indoor/outdoor, dietary tags, travel flags, coordinates, notes, and source links
+- MapLibre map with OpenStreetMap tiles
+- Smart itinerary builder with proximity clustering and transparent explanations
+- Trip Stress Radar and overload detection
+- Rainy-day alternatives
+- Random spot picker
+- Neighborhood grouping
+- Budget view
+- Packing checklist
+- Command palette
+- Dark mode
+- PWA install support
+- iOS packaging path with Capacitor
+- CI build/test workflow for GitHub Actions
+
+## Tech Stack
+
+- **Framework**: Next.js 16 App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI**: shadcn-style Radix primitives
+- **State**: Zustand
+- **Storage**: Dexie and IndexedDB
+- **Maps**: MapLibre GL with OpenStreetMap-compatible tiles
+- **Forms**: React Hook Form and Zod
+- **Drag and drop**: dnd-kit
+- **Animation**: Framer Motion
+- **Testing**: Jest and ts-jest
+- **iOS wrapper**: Capacitor
 
 ## Architecture
 
-```
+```text
 nomadnote/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx          # Root layout + providers
-│   ├── page.tsx            # Home — trip list
-│   ├── trips/page.tsx     # Trip detail (static-export safe, uses ?id=)
-│   └── settings/page.tsx   # Settings + privacy
-├── components/             # Shared UI components
-│   ├── ui/                 # Primitives (button, card, dialog, etc.)
-│   ├── AppShell.tsx        # Sidebar + header shell
-│   ├── MapView.tsx         # MapLibre GL map
-│   ├── PlaceCard.tsx       # Place display card
-│   ├── PlaceForm.tsx       # Place edit form
-│   ├── TripCard.tsx        # Trip list card
-│   ├── TripForm.tsx        # Trip edit form
-│   ├── CaptureInbox.tsx    # URL/text extraction flow
-│   ├── ItineraryBuilder.tsx # Drag-drop itinerary
-│   ├── PackingList.tsx     # Packing checklist
-│   ├── CommandPalette.tsx  # ⌘K command palette
-│   ├── Onboarding.tsx      # First-run tour
-│   └── DBProvider.tsx      # DB init + onboarding gate
+├── app/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── trips/page.tsx
+│   └── settings/page.tsx
+├── components/
+│   ├── ui/
+│   ├── AppShell.tsx
+│   ├── CaptureInbox.tsx
+│   ├── HomeDashboard.tsx
+│   ├── ItineraryBuilder.tsx
+│   ├── MapView.tsx
+│   ├── TripBrief.tsx
+│   └── TripStressRadar.tsx
 ├── features/
-│   ├── capture/
-│   │   └── extractors.ts   # URL/text place extraction + Nominatim
-│   └── itinerary/
-│       └── algorithm.ts    # Proximity clustering + scoring + explanations
+│   ├── capture/extractors.ts
+│   └── itinerary/algorithm.ts
 ├── store/
-│   ├── trips.ts            # Zustand trips store
-│   ├── places.ts           # Zustand places store + filters
-│   ├── ui.ts               # UI state (persisted)
-│   └── capture.ts          # Capture pipeline store
+│   ├── capture.ts
+│   ├── places.ts
+│   ├── trips.ts
+│   └── ui.ts
 ├── lib/
-│   ├── types.ts            # All TypeScript types
-│   ├── db.ts               # Dexie schema + repositories
-│   ├── utils.ts            # Shared utilities
-│   └── demo.ts             # Demo data (Tokyo + Lisbon)
+│   ├── db.ts
+│   ├── demo.ts
+│   ├── types.ts
+│   └── utils.ts
+├── docs/
+│   ├── APP_STORE_METADATA.md
+│   ├── GITHUB_SETUP.md
+│   ├── PUBLISHING.md
+│   └── SCREENSHOTS.md
 └── __tests__/
-    ├── extractors.test.ts  # Extraction pipeline tests
-    └── algorithm.test.ts   # Itinerary algorithm tests
+    ├── algorithm.test.ts
+    └── extractors.test.ts
 ```
 
-## Itinerary algorithm
-
-The auto-builder uses transparent heuristics:
-
-1. **Filter** — exclude visited places and places without coordinates
-2. **Sort** — by priority (1=must-see first), then creation date
-3. **Proximity cluster** — group places within 2km radius
-4. **Assign to days** — best-fit by remaining time budget + proximity bonus
-5. **Time-of-day reorder** — morning → afternoon → evening within each day
-6. **Slot assignment** — assign concrete start/end times from 9am
-7. **Explanations** — every day and every item gets a reason string
-
-Pacing modes:
-- **Slow** — 6 hours/day
-- **Balanced** — 8 hours/day  
-- **Packed** — 11 hours/day
-
-## Getting started
+## Local Development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open:
 
-## Deployment
-
-Deploy to Vercel for free:
-
-```bash
-npx vercel
+```text
+http://localhost:3000
 ```
 
-Or export as static site:
+## Validation
 
 ```bash
 npm run build
+npm run build:static
+npm test -- --runInBand
+npm audit --omit=dev
 ```
 
-## iOS packaging
+## Web Deployment
 
-NomadNote can be shipped to iOS with Capacitor while keeping the same local-first TypeScript codebase:
+Recommended: Vercel.
+
+```bash
+npm install
+npm run build
+npx vercel
+```
+
+No environment variables are required for the MVP.
+
+## iOS and App Store
+
+NomadNote can be packaged for iOS with Capacitor:
 
 ```bash
 npm install
@@ -132,10 +173,32 @@ npm run ios:add
 npm run ios:open
 ```
 
-See `IOS_RELEASE.md` for signing, TestFlight, App Store metadata, and review notes.
+Full instructions:
+
+- [docs/PUBLISHING.md](docs/PUBLISHING.md)
+- [docs/APP_STORE_METADATA.md](docs/APP_STORE_METADATA.md)
+- [IOS_RELEASE.md](IOS_RELEASE.md)
+
+## GitHub Setup
+
+See [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md).
+
+Quick version:
+
+```bash
+git remote add origin git@github.com:YOUR_USERNAME/nomadnote.git
+git push -u origin main
+```
 
 ## Privacy
 
-All data is stored in `IndexedDB` via Dexie. Nothing is sent to any server.
-Map tiles are fetched anonymously from OpenFreeMap. Geocoding is done via
-Nominatim with a generic User-Agent. No user identifiers are ever transmitted.
+NomadNote stores trip data locally by default. It does not require an account and does not include analytics tracking or ad tracking by default.
+
+Included legal/support pages:
+
+- `public/legal/privacy.html`
+- `public/legal/support.html`
+
+## Status
+
+Portfolio-ready MVP. The next strongest improvements would be production screenshots, a custom 1024x1024 app icon, a real marketing landing section, and TestFlight validation on a physical iPhone.
