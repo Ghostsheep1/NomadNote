@@ -22,6 +22,7 @@ A local-first, privacy-first travel planner. No account. No server. No tracking.
 - **Private by default**: no account, no login, no mandatory backend, local IndexedDB storage.
 - **Capture-first workflow**: paste map links, social links, articles, coordinates, addresses, or plain notes and confirm extracted candidates before saving.
 - **Smart travel intelligence**: itinerary grouping, overload detection, rainy-day alternatives, random spot picker, budget view, packing checklist, and free-place filtering.
+- **Unique differentiator**: Trip Stress Radar scores overload, missing pins, weather resilience, FOMO load, and neighborhood spread, then suggests one rescue move.
 - **Polished product UI**: responsive dashboard, rich trip cards, trip health brief, command palette, dark mode, installable PWA shell, and iOS packaging with Capacitor.
 - **Engineering depth**: typed domain models, Dexie repositories, Zustand stores, transparent heuristic algorithms, import/export, and tests for extraction and itinerary logic.
 

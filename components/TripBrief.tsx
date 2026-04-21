@@ -3,6 +3,7 @@
 import { AlertTriangle, BadgeDollarSign, CloudRain, Compass, Heart, MapPinned, Route, Star } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
+import { TripStressRadar } from "@/components/TripStressRadar";
 import { cn } from "@/lib/utils";
 import type { Place, Trip } from "@/lib/types";
 
@@ -36,64 +37,68 @@ export function TripBrief({ trip, places }: TripBriefProps) {
     .slice(0, 3);
 
   return (
-    <section className="grid gap-3 border-b border-border bg-background px-4 py-3 lg:grid-cols-[1.15fr_0.85fr]">
-      <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Travel brief</p>
-            <h2 className="font-display text-xl font-semibold">What this trip is telling you</h2>
-          </div>
-          <Badge variant={overloaded ? "warning" : "success"}>
-            {overloaded ? "Packed" : "Healthy pace"}
-          </Badge>
-        </div>
+    <section className="grid gap-3 border-b border-border bg-background px-4 py-3">
+      <TripStressRadar trip={trip} places={places} />
 
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <BriefMetric icon={<Star />} label="Must-sees" value={mustSees} />
-          <BriefMetric icon={<Heart />} label="Favorites" value={favorites} />
-          <BriefMetric icon={<BadgeDollarSign />} label="Free spots" value={free} />
-          <BriefMetric icon={<CloudRain />} label="Rain backups" value={rainy} />
-        </div>
-
-        <div className="mt-4">
-          <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
-            <span>Visited progress</span>
-            <span>{visited}/{total} places</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-        <Signal
-          icon={<MapPinned />}
-          title={`${mapped}/${total || 0} places mapped`}
-          body={mapped === total ? "Your map is ready for routing and neighborhood planning." : "Add pins to unmapped saves for better itinerary grouping."}
-          tone={mapped === total ? "good" : "watch"}
-        />
-        <Signal
-          icon={overloaded ? <AlertTriangle /> : <Route />}
-          title={overloaded ? "Overload risk" : "Route looks workable"}
-          body={overloaded ? "Average day has five or more stops. Move one low-priority place into a backup list." : "Your itinerary density is reasonable for a real travel day."}
-          tone={overloaded ? "watch" : "good"}
-        />
-        {topNeighborhoods.length > 0 && (
-          <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-              <Compass className="h-4 w-4 text-primary" />
-              Neighborhood clusters
+      <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Travel brief</p>
+              <h2 className="font-display text-xl font-semibold">What this trip is telling you</h2>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {topNeighborhoods.map(([name, count]) => (
-                <Badge key={name} variant="secondary">
-                  {name} · {count}
-                </Badge>
-              ))}
+            <Badge variant={overloaded ? "warning" : "success"}>
+              {overloaded ? "Packed" : "Healthy pace"}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <BriefMetric icon={<Star />} label="Must-sees" value={mustSees} />
+            <BriefMetric icon={<Heart />} label="Favorites" value={favorites} />
+            <BriefMetric icon={<BadgeDollarSign />} label="Free spots" value={free} />
+            <BriefMetric icon={<CloudRain />} label="Rain backups" value={rainy} />
+          </div>
+
+          <div className="mt-4">
+            <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+              <span>Visited progress</span>
+              <span>{visited}/{total} places</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
-        )}
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+          <Signal
+            icon={<MapPinned />}
+            title={`${mapped}/${total || 0} places mapped`}
+            body={mapped === total ? "Your map is ready for routing and neighborhood planning." : "Add pins to unmapped saves for better itinerary grouping."}
+            tone={mapped === total ? "good" : "watch"}
+          />
+          <Signal
+            icon={overloaded ? <AlertTriangle /> : <Route />}
+            title={overloaded ? "Overload risk" : "Route looks workable"}
+            body={overloaded ? "Average day has five or more stops. Move one low-priority place into a backup list." : "Your itinerary density is reasonable for a real travel day."}
+            tone={overloaded ? "watch" : "good"}
+          />
+          {topNeighborhoods.length > 0 && (
+            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                <Compass className="h-4 w-4 text-primary" />
+                Neighborhood clusters
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {topNeighborhoods.map(([name, count]) => (
+                  <Badge key={name} variant="secondary">
+                    {name} · {count}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

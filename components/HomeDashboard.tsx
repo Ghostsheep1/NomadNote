@@ -29,10 +29,10 @@ export function HomeDashboard({ trips, onCreateTrip, onImportTrip }: HomeDashboa
             Local-first, no-login travel planning
           </div>
           <h1 className="max-w-2xl font-display text-4xl font-bold leading-[0.95] tracking-normal sm:text-5xl">
-            Plan the trip before the tabs eat it.
+            Plan the trip before the itinerary ruins it.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-            Capture links, map pins, notes, reservations, packing lists, and itinerary ideas in one private workspace that lives on this device.
+            Capture everything, then let Trip Stress Radar catch overload, pin debt, rain risk, and backtracking before your vacation turns into homework.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <button onClick={onCreateTrip} className="nomad-action nomad-action-primary">
