@@ -32,7 +32,7 @@ export function PlaceCard({ place, onEdit, onDelete, compact, dragging, selected
       exit={{ opacity: 0, scale: 0.96 }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "group relative flex gap-3 rounded-xl border bg-card p-4 transition-all duration-150 cursor-pointer",
+        "group relative flex cursor-pointer gap-3 rounded-xl border bg-card p-3 transition-all duration-150 sm:p-4",
         selected ? "border-primary/50 ring-1 ring-primary/30 shadow-md" : "border-border hover:border-border/80 hover:shadow-sm",
         dragging && "shadow-xl ring-2 ring-primary/20 rotate-1 scale-[1.02]",
         place.visited && "opacity-75"
@@ -64,13 +64,13 @@ export function PlaceCard({ place, onEdit, onDelete, compact, dragging, selected
           <div className="flex items-center gap-1 flex-shrink-0">
             <button
               onClick={(e) => { e.stopPropagation(); toggleFavorite(place.id); }}
-              className={cn("rounded-md p-1 transition-colors", place.favorite ? "text-red-500" : "text-muted-foreground opacity-0 group-hover:opacity-100")}
+              className={cn("rounded-md p-1 transition-colors", place.favorite ? "text-red-500" : "text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100")}
             >
               <Heart className={cn("h-3.5 w-3.5", place.favorite && "fill-current")} />
             </button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon-sm" variant="ghost" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
+                <Button size="icon-sm" variant="ghost" className="h-6 w-6 opacity-100 sm:opacity-0 sm:group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
                   <MoreHorizontal className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>

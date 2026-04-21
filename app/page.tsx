@@ -56,7 +56,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-7 px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-3 py-4 sm:gap-7 sm:px-6 sm:py-6 lg:px-8">
       <HomeDashboard
         trips={trips}
         onCreateTrip={() => setCreateOpen(true)}
@@ -64,7 +64,7 @@ export default function HomePage() {
       />
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm md:flex-row md:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -74,7 +74,7 @@ export default function HomePage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:flex">
           <Button
             variant="outline"
             onClick={() => fileRef.current?.click()}
@@ -91,14 +91,14 @@ export default function HomePage() {
         <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-2xl font-semibold">{showArchived ? "Archived trips" : "Active trips"}</h2>
           <p className="text-sm text-muted-foreground">
             {filtered.length} visible · {active.length} active · {archived.length} archived
           </p>
         </div>
-        <div className="flex gap-1 rounded-xl bg-muted p-1">
+        <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:flex">
           {[
             { label: `Active`, value: false },
             { label: `Archived`, value: true },

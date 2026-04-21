@@ -61,6 +61,9 @@
       radial-gradient(circle at 100% 0%, hsl(var(--secondary) / 0.10), transparent 24rem),
       hsl(var(--background));
   }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
   h1, h2, h3 { font-family: 'Cormorant Garamond', 'Outfit', Georgia, serif; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }

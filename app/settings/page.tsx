@@ -11,6 +11,7 @@ import { useUIStore } from "@/store/ui";
 import { useTripsStore } from "@/store/trips";
 import { clearAllData } from "@/lib/db";
 import { toast } from "sonner";
+import { APP_VERSION, CHANGELOG } from "@/lib/version";
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useUIStore();
@@ -36,8 +37,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="font-display text-3xl font-bold mb-2">Settings</h1>
+    <div className="mx-auto max-w-2xl px-3 py-5 sm:px-4 sm:py-8">
+      <h1 className="font-display text-4xl font-bold leading-none mb-2 sm:text-5xl">Settings</h1>
       <p className="text-muted-foreground mb-8">Customize NomadNote to your preferences.</p>
 
       <div className="mb-8 p-5 rounded-xl bg-primary/5 border border-primary/20">
@@ -60,8 +61,8 @@ export default function SettingsPage() {
       </div>
 
       <section className="mb-8">
-        <h2 className="font-display text-lg font-semibold mb-4">Appearance</h2>
-        <div className="flex items-center justify-between">
+        <h2 className="font-display text-2xl font-semibold mb-4">Appearance</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Label>Theme</Label>
           <div className="flex gap-1 bg-muted p-1 rounded-lg">
             {([
@@ -84,7 +85,7 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section className="mb-8">
-        <h2 className="font-display text-lg font-semibold mb-4">Regional</h2>
+        <h2 className="font-display text-2xl font-semibold mb-4">Regional</h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
@@ -118,9 +119,9 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section className="mb-8">
-        <h2 className="font-display text-lg font-semibold mb-1">Data management</h2>
+        <h2 className="font-display text-2xl font-semibold mb-1">Data management</h2>
         <p className="text-sm text-muted-foreground mb-4">All data lives in this browser only.</p>
-        <div className="p-4 rounded-xl border border-destructive/30 bg-destructive/5 flex items-center justify-between">
+        <div className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-destructive">Clear all data</p>
             <p className="text-xs text-muted-foreground">Permanently delete all trips, places, and settings</p>
@@ -134,12 +135,36 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section>
-        <h2 className="font-display text-lg font-semibold mb-4">About</h2>
+        <h2 className="font-display text-2xl font-semibold mb-4">About</h2>
         <div className="text-sm text-muted-foreground space-y-2">
-          <p>NomadNote v1.0 · Designed and built by Henrique Ribeiro</p>
+          <p>NomadNote v{APP_VERSION} · Designed and built by Henrique Ribeiro</p>
           <p>Built with Next.js, Dexie, MapLibre GL, and Capacitor</p>
           <p>Map tiles from <a href="https://openfreemap.org" className="underline text-primary" target="_blank" rel="noopener">OpenFreeMap</a> · Geocoding via <a href="https://nominatim.openstreetmap.org" className="underline text-primary" target="_blank" rel="noopener">Nominatim</a></p>
           <p>Free to use. No paid APIs. No account needed.</p>
+        </div>
+      </section>
+
+      <Separator className="my-8" />
+
+      <section>
+        <h2 className="font-display text-2xl font-semibold mb-4">Version history</h2>
+        <div className="space-y-3">
+          {CHANGELOG.map((release) => (
+            <div key={release.version} className="rounded-xl border border-border bg-card p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">v{release.version} · {release.title}</p>
+                  <p className="text-xs text-muted-foreground">{release.date}</p>
+                </div>
+                {release.version === APP_VERSION && <Badge variant="success">Current</Badge>}
+              </div>
+              <ul className="mt-3 space-y-1 text-sm text-muted-foreground">
+                {release.changes.map((change) => (
+                  <li key={change}>• {change}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
 

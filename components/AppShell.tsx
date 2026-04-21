@@ -3,8 +3,8 @@ import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Map, Settings, Plus, Command, BookOpen, Home,
-  ChevronRight, PanelLeftClose, PanelLeft,
+  Settings, Plus, Command, Home, Search,
+  PanelLeftClose, PanelLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CaptureInbox } from "@/components/CaptureInbox";
 import { Toaster } from "sonner";
+import { APP_VERSION } from "@/lib/version";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -57,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-dvh overflow-hidden bg-background">
       {/* Sidebar */}
       <aside className={cn(
-        "flex-shrink-0 border-r border-border bg-card flex flex-col transition-all duration-200 overflow-hidden",
+        "hidden flex-shrink-0 border-r border-border bg-card transition-all duration-200 overflow-hidden md:flex md:flex-col",
         sidebarOpen ? "w-60" : "w-0 md:w-14"
       )}>
         {/* Logo */}
@@ -125,7 +126,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <kbd className="text-xs font-mono bg-muted px-1 rounded">⌘K</kbd>
             </Button>
             <p className="px-1 pt-1 text-[11px] leading-4 text-muted-foreground">
-              Designed by Henrique Ribeiro
+              v{APP_VERSION} · Designed by Henrique Ribeiro
             </p>
           </div>
         )}
@@ -134,10 +135,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center px-4 gap-3 flex-shrink-0">
-          <Button size="icon-sm" variant="ghost" onClick={toggleSidebar} className="flex-shrink-0">
+        <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sm:gap-3 flex-shrink-0">
+          <Button size="icon-sm" variant="ghost" onClick={toggleSidebar} className="hidden flex-shrink-0 md:inline-flex">
             {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
           </Button>
+
+          <Link href="/" className="flex items-center gap-2 min-w-0 md:hidden">
+            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-foreground text-sm font-bold">N</span>
+            </div>
+            <span className="font-display text-lg font-semibold truncate">NomadNote</span>
+          </Link>
 
           <div className="flex-1" />
 
@@ -152,14 +160,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <kbd className="ml-2 text-xs font-mono bg-muted px-1.5 rounded">⌘K</kbd>
           </Button>
 
-          <Button size="sm" onClick={openCapture} className="flex-shrink-0">
+          <Button size="icon-sm" variant="ghost" onClick={toggleCommandPalette} className="md:hidden flex-shrink-0">
+            <Search className="h-4 w-4" />
+          </Button>
+
+          <Button size="sm" onClick={openCapture} className="flex-shrink-0 px-2 sm:px-3">
             <Plus className="h-4 w-4 mr-1.5" />
             <span className="hidden sm:inline">Add</span>
           </Button>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pb-[76px] md:pb-0">
           {children}
         </main>
       </div>
@@ -176,6 +188,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <CommandPalette />
       <Toaster position="bottom-right" richColors closeButton />
+      <MobileNav pathname={pathname} openCapture={openCapture} />
     </div>
   );
 }
@@ -194,6 +207,55 @@ function SidebarLink({ href, icon, label, open, active }: {
     >
       <span className="flex-shrink-0 [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
       {open && <span className="truncate">{label}</span>}
+    </Link>
+  );
+}
+
+function MobileNav({
+  pathname,
+  openCapture,
+}: {
+  pathname: string;
+  openCapture: () => void;
+}) {
+  return (
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">
+      <div className="mx-auto grid max-w-sm grid-cols-3 gap-2">
+        <MobileNavLink href="/" active={pathname === "/"} icon={<Home className="h-4 w-4" />} label="Trips" />
+        <button
+          onClick={openCapture}
+          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl bg-primary px-2 text-xs font-semibold text-primary-foreground shadow-sm"
+        >
+          <Plus className="h-4 w-4" />
+          Add
+        </button>
+        <MobileNavLink href="/settings" active={pathname === "/settings"} icon={<Settings className="h-4 w-4" />} label="Settings" />
+      </div>
+    </nav>
+  );
+}
+
+function MobileNavLink({
+  href,
+  active,
+  icon,
+  label,
+}: {
+  href: string;
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-semibold transition-colors",
+        active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+      )}
+    >
+      {icon}
+      {label}
     </Link>
   );
 }

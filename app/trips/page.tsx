@@ -97,18 +97,18 @@ export default function TripPage() {
   const duration = tripDuration(trip.startDate, trip.endDate);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex h-full flex-col">
       {/* Trip header */}
-      <div className="border-b border-border bg-card px-4 pt-5 pb-0">
-        <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="border-b border-border bg-card px-3 pt-4 pb-0 sm:px-4 sm:pt-5">
+        <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3 min-w-0">
             <button onClick={() => router.push("/")} className="mt-1 text-muted-foreground hover:text-foreground transition-colors">
               <ArrowLeft className="h-4 w-4" />
             </button>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{trip.emoji}</span>
-                <h1 className="font-display text-xl font-bold truncate">{trip.name}</h1>
+                <h1 className="truncate font-display text-2xl font-bold leading-none sm:text-3xl">{trip.name}</h1>
               </div>
               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                 {trip.startDate && (
@@ -120,7 +120,7 @@ export default function TripPage() {
             </div>
           </div>
 
-          <div className="flex gap-1 flex-shrink-0">
+          <div className="grid grid-cols-4 gap-1 sm:flex sm:flex-shrink-0">
             <Button size="icon-sm" variant="ghost" onClick={handleRandom} title="Random spot picker">
               <Shuffle className="h-3.5 w-3.5" />
             </Button>
@@ -149,7 +149,7 @@ export default function TripPage() {
               key={value}
               onClick={() => setActiveTripTab(value)}
               className={cn(
-                "flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap sm:px-4",
                 tab === value
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
@@ -167,7 +167,7 @@ export default function TripPage() {
         {tab === "places" && (
           <div className="h-full flex flex-col">
             <TripBrief trip={trip} places={places} />
-            <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+            <div className="flex items-center gap-2 border-b border-border px-3 py-3 sm:px-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input
@@ -177,12 +177,12 @@ export default function TripPage() {
                   onChange={(e) => setFilters({ search: e.target.value })}
                 />
               </div>
-              <Button size="sm" variant="outline" onClick={() => setCaptureOpen(true)}>
+              <Button size="sm" variant="outline" onClick={() => setCaptureOpen(true)} className="px-2 sm:px-3">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-3 sm:px-4">
               {filteredPlaces.length === 0 ? (
                 <div className="text-center py-12 flex flex-col items-center gap-3">
                   <MapPin className="h-10 w-10 text-muted-foreground/30" />
@@ -247,7 +247,7 @@ export default function TripPage() {
 
         {/* ITINERARY */}
         {tab === "itinerary" && (
-          <div className="h-full overflow-y-auto px-4 py-4">
+          <div className="h-full overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
             <ItineraryBuilder trip={trip} places={places} />
             {trip.itinerary && trip.itinerary.length > 0 && (
               <div className="mt-6">
@@ -259,14 +259,14 @@ export default function TripPage() {
 
         {/* PACKING */}
         {tab === "packing" && (
-          <div className="h-full overflow-y-auto px-4 py-4">
+          <div className="h-full overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
             <PackingList tripId={trip.id} />
           </div>
         )}
 
         {/* SETTINGS / INFO */}
         {tab === "settings" && (
-          <div className="h-full overflow-y-auto px-4 py-4 max-w-xl">
+          <div className="h-full max-w-xl overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
             <TripForm
               trip={trip}
               onSave={() => toast.success("Trip updated")}

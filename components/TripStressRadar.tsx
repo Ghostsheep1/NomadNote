@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, CloudRain, Compass, MapPinned, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn, haversineKm } from "@/lib/utils";
 import type { Place, Trip } from "@/lib/types";
@@ -13,7 +14,7 @@ interface TripStressRadarProps {
 interface StressFactor {
   label: string;
   value: number;
-  icon: React.ReactNode;
+  icon: ReactNode;
   note: string;
 }
 
@@ -21,20 +22,20 @@ export function TripStressRadar({ trip, places }: TripStressRadarProps) {
   const radar = analyzeTripStress(trip, places);
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-primary/20 bg-card shadow-sm">
+    <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-sm sm:rounded-[28px]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_90%_30%,hsl(var(--secondary)/0.14),transparent_32%)]" />
-      <div className="relative grid gap-5 p-4 sm:p-5 xl:grid-cols-[0.9fr_1.1fr]">
+      <div className="relative grid gap-4 p-3 sm:gap-5 sm:p-5 xl:grid-cols-[0.9fr_1.1fr]">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/75 px-3 py-1 text-xs font-bold text-primary shadow-sm backdrop-blur">
             <Sparkles className="h-3.5 w-3.5" />
             NomadNote exclusive
           </div>
-          <h2 className="font-display text-2xl font-bold leading-tight">Trip Stress Radar</h2>
+          <h2 className="font-display text-[1.8rem] font-bold leading-none sm:text-3xl">Trip Stress Radar</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             Most planners help you add more. This one tells you when the plan will actually feel bad, then gives you a rescue move.
           </p>
 
-          <div className="mt-5 flex items-center gap-4">
+          <div className="mt-5 flex flex-col gap-4 min-[380px]:flex-row min-[380px]:items-center">
             <StressDial score={radar.score} />
             <div className="min-w-0">
               <Badge variant={radar.score >= 68 ? "warning" : radar.score >= 38 ? "secondary" : "success"}>
@@ -46,7 +47,7 @@ export function TripStressRadar({ trip, places }: TripStressRadarProps) {
           </div>
         </div>
 
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 md:grid-cols-2">
           {radar.factors.map((factor) => (
             <div key={factor.label} className="rounded-2xl border border-border/75 bg-background/75 p-3 shadow-sm backdrop-blur">
               <div className="mb-2 flex items-center justify-between gap-2">
@@ -80,14 +81,14 @@ function StressDial({ score }: { score: number }) {
   const angle = Math.round((score / 100) * 360);
   return (
     <div
-      className="grid h-24 w-24 flex-shrink-0 place-items-center rounded-full p-2"
+      className="grid h-20 w-20 flex-shrink-0 place-items-center rounded-full p-2 sm:h-24 sm:w-24"
       style={{
         background: `conic-gradient(hsl(var(--primary)) ${angle}deg, hsl(var(--muted)) ${angle}deg)`,
       }}
     >
       <div className="grid h-full w-full place-items-center rounded-full bg-card shadow-inner">
         <div className="text-center">
-          <div className="text-2xl font-black tabular-nums">{score}</div>
+          <div className="text-xl font-black tabular-nums sm:text-2xl">{score}</div>
           <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">stress</div>
         </div>
       </div>

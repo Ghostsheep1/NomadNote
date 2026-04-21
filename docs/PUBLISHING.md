@@ -34,6 +34,25 @@ Suggested pinned-project blurb:
 
 > NomadNote is a local-first travel planner that does not just store places. Its Trip Stress Radar detects overload, missing pins, weather risk, FOMO load, and neighborhood spread so travelers can rescue unrealistic itineraries before the trip.
 
+## 2.1 Versioning
+
+NomadNote uses semver-style project versions.
+
+Current version:
+
+```text
+v1.1.0
+```
+
+After a release-worthy update:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+Create a GitHub Release from the tag and paste the matching notes from `CHANGELOG.md`.
+
 ## 3. Deploy the web app
 
 The easiest free option is Vercel.
@@ -142,3 +161,24 @@ Privacy answers:
 - Screenshot refresh
 - README demo URL updated
 - Privacy/support URLs live
+
+## Vercel redeploy after edits
+
+If the Vercel project is connected to GitHub, the normal update flow is:
+
+```bash
+git add .
+git commit -m "Release v1.1 responsive polish"
+git push origin main
+```
+
+Vercel automatically builds and redeploys the latest `main` branch.
+
+To redeploy manually in Vercel:
+
+1. Open your Vercel project.
+2. Go to Deployments.
+3. Select the latest deployment.
+4. Click Redeploy.
+
+Use manual redeploy only if GitHub auto-deploy did not run.

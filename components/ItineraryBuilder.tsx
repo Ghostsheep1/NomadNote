@@ -245,10 +245,10 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
     : 0;
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4 sm:gap-5">
       {/* Builder controls */}
-      <div className="flex flex-col gap-3 p-4 rounded-xl bg-muted/40 border border-border">
-        <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-3 sm:p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="text-sm font-semibold">Auto-build itinerary</h3>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -283,7 +283,7 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="grid gap-2 sm:flex">
           <Button onClick={handleBuild} disabled={building || places.length === 0} className="flex-1">
             {building ? (
               <><Loader2 className="h-4 w-4 animate-spin mr-2" />Building…</>
@@ -294,7 +294,7 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
             )}
           </Button>
           {days.length > 0 && (
-            <Button variant="outline" onClick={handleSave} size="default">
+            <Button variant="outline" onClick={handleSave} size="default" className="sm:w-auto">
               Save
             </Button>
           )}
@@ -336,7 +336,7 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
       {/* Day columns */}
       {days.length > 0 && (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-sm font-semibold">{days.length}-day itinerary</h3>
             <div className="flex gap-1">
               <Button variant="ghost" size="sm" onClick={() => setExpandedDays(new Set(days.map((d) => d.date)))}>

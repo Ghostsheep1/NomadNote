@@ -47,19 +47,19 @@ Use the Vercel URL once deployed.
 Tag:
 
 ```text
-v1.0.0-mvp
+v1.1.0
 ```
 
 Release title:
 
 ```text
-NomadNote MVP: Local-first travel planner with Trip Stress Radar
+NomadNote v1.1: Responsive local-first travel planner
 ```
 
 Release notes:
 
 ```md
-Initial MVP release with:
+Version 1.1 release with:
 
 - Local-first trip and place storage
 - Capture inbox for links, notes, and map URLs
@@ -68,4 +68,6 @@ Initial MVP release with:
 - Trip Stress Radar
 - Packing list, budget view, import/export, command palette, dark mode
 - PWA and iOS packaging path with Capacitor
+- Responsive phone and iPad polish
+- In-app version history
 ```

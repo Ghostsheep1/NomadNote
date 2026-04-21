@@ -37,15 +37,15 @@ export function TripBrief({ trip, places }: TripBriefProps) {
     .slice(0, 3);
 
   return (
-    <section className="grid gap-3 border-b border-border bg-background px-4 py-3">
+    <section className="grid gap-3 border-b border-border bg-background px-3 py-3 sm:px-4">
       <TripStressRadar trip={trip} places={places} />
 
       <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-          <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
+          <div className="mb-3 flex flex-col gap-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Travel brief</p>
-              <h2 className="font-display text-xl font-semibold">What this trip is telling you</h2>
+              <h2 className="font-display text-2xl font-semibold leading-none">What this trip is telling you</h2>
             </div>
             <Badge variant={overloaded ? "warning" : "success"}>
               {overloaded ? "Packed" : "Healthy pace"}
@@ -106,12 +106,12 @@ export function TripBrief({ trip, places }: TripBriefProps) {
 
 function BriefMetric({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-muted/55 p-3">
+    <div className="rounded-xl bg-muted/55 p-2.5 sm:p-3">
       <div className="mb-2 flex items-center gap-2 text-muted-foreground [&>svg]:h-3.5 [&>svg]:w-3.5">
         {icon}
         <span className="text-xs font-medium">{label}</span>
       </div>
-      <div className="text-xl font-bold tabular-nums">{value}</div>
+      <div className="text-lg font-bold tabular-nums sm:text-xl">{value}</div>
     </div>
   );
 }
