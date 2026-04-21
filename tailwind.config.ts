@@ -12,8 +12,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Fraunces", "Inter", "Georgia", "serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["Cormorant Garamond", "Outfit", "Georgia", "serif"],
+        sans: ["Outfit", "system-ui", "sans-serif"],
         mono: ["DM Mono", "monospace"],
       },
       colors: {

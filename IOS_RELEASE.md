@@ -12,6 +12,17 @@ NomadNote is built as a local-first web app and packaged for iOS with Capacitor.
    - Capabilities: none required for MVP
 5. In App Store Connect, create an app named `NomadNote` with bundle ID `app.nomadnote.travel`.
 
+## Publishing under a company account
+
+If NomadNote is published through a company Apple Developer account, the App Store seller name will be the company/legal entity. Your dad can add your Apple ID to the company team in App Store Connect so you can work on the app without sharing his password.
+
+Recommended access:
+
+- Apple Developer team role: `Admin` if you need to create identifiers, certificates, and provisioning profiles.
+- App Store Connect role: `App Manager` or `Admin` for managing the app record, builds, metadata, TestFlight, and submission.
+
+If you want the App Store listing to appear personally under Henrique Ribeiro, use your own Individual Apple Developer Program membership instead. If using the company account, keep creator credit in the app, README, support site, copyright, and marketing text.
+
 ## Local build
 
 ```bash

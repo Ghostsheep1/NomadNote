@@ -26,7 +26,7 @@ export function HomeDashboard({ trips, onCreateTrip, onImportTrip }: HomeDashboa
         <div className="min-w-0">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-background/70 px-3 py-1 text-xs font-semibold text-primary shadow-sm backdrop-blur">
             <ShieldCheck className="h-3.5 w-3.5" />
-            Local-first, no-login travel planning
+            Local-first travel planning by Henrique Ribeiro
           </div>
           <h1 className="max-w-2xl font-display text-4xl font-bold leading-[0.95] tracking-normal sm:text-5xl">
             Plan the trip before the itinerary ruins it.

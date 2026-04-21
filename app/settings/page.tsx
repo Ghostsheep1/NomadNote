@@ -136,7 +136,8 @@ export default function SettingsPage() {
       <section>
         <h2 className="font-display text-lg font-semibold mb-4">About</h2>
         <div className="text-sm text-muted-foreground space-y-2">
-          <p>NomadNote v1.0 · Built with Next.js, Dexie, MapLibre GL</p>
+          <p>NomadNote v1.0 · Designed and built by Henrique Ribeiro</p>
+          <p>Built with Next.js, Dexie, MapLibre GL, and Capacitor</p>
           <p>Map tiles from <a href="https://openfreemap.org" className="underline text-primary" target="_blank" rel="noopener">OpenFreeMap</a> · Geocoding via <a href="https://nominatim.openstreetmap.org" className="underline text-primary" target="_blank" rel="noopener">Nominatim</a></p>
           <p>Free to use. No paid APIs. No account needed.</p>
         </div>

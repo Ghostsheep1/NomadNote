@@ -12,4 +12,6 @@ module.exports = {
     "^.+\\.tsx?$": ["ts-jest", { tsconfig: "tsconfig.test.json" }],
   },
   testMatch: ["**/__tests__/**/*.test.ts"],
+  modulePathIgnorePatterns: ["<rootDir>/.next", "<rootDir>/out", "<rootDir>/node_modules"],
+  watchPathIgnorePatterns: ["<rootDir>/.next", "<rootDir>/out", "<rootDir>/node_modules"],
 };

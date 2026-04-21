@@ -124,6 +124,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </span>
               <kbd className="text-xs font-mono bg-muted px-1 rounded">⌘K</kbd>
             </Button>
+            <p className="px-1 pt-1 text-[11px] leading-4 text-muted-foreground">
+              Designed by Henrique Ribeiro
+            </p>
           </div>
         )}
       </aside>

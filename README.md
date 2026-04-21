@@ -2,6 +2,8 @@
 
 Local-first travel planning for people who save too many places and need a trip that will actually feel good in real life.
 
+Designed and built by **Henrique Ribeiro**.
+
 NomadNote is a private, no-account travel planner with a unique **Trip Stress Radar**. It does not just store places or generate an itinerary. It warns when the plan is becoming overloaded, under-pinned, weather-fragile, FOMO-heavy, or spread across too many neighborhoods.
 
 ## Why It Exists

@@ -39,6 +39,16 @@ travel planner,itinerary,trip organizer,offline map,packing list,journal,private
 
 NomadNote does not require authentication. On first launch, use the demo trip or create a trip manually. All user trip data is stored locally on device by default. Map tiles and optional geocoding require network access.
 
+## Creator credit
+
+Use this where Apple metadata allows natural attribution, such as promotional text, support site, website, or copyright:
+
+```text
+Designed and built by Henrique Ribeiro.
+```
+
+If publishing under a company account, the App Store seller name will show the company/legal entity, not necessarily Henrique Ribeiro personally.
+
 ## Support URL
 
 Use the deployed website URL or GitHub Pages support page.
