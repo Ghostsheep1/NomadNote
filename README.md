@@ -4,7 +4,7 @@ Local-first travel planning for people who save too many places and need a trip 
 
 Designed and built by **Henrique Ribeiro**.
 
-Current version: **v1.3.1**
+Current version: **v1.3.2**
 
 NomadNote is a private, no-account travel planner with a unique **Trip Stress Radar**. It does not just store places or generate an itinerary. It warns when the plan is becoming overloaded, under-pinned, weather-fragile, anchor-heavy, or spread across too many neighborhoods.
 
@@ -207,6 +207,6 @@ Included legal/support pages:
 
 ## Status
 
-Portfolio-ready MVP, currently at v1.3.1. The next strongest improvements would be production screenshots, a custom 1024x1024 app icon, and TestFlight validation on a physical iPhone.
+Portfolio-ready MVP, currently at v1.3.2. The next strongest improvements would be production screenshots, a custom 1024x1024 app icon, and TestFlight validation on a physical iPhone.
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.

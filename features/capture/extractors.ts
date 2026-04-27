@@ -358,6 +358,7 @@ export interface GeocodeOptions {
   limit?: number;
   viewbox?: [number, number, number, number]; // west, south, east, north
   countryCodes?: string[];
+  preferredCountryCodes?: string[];
   near?: { lat: number; lng: number };
 }
 

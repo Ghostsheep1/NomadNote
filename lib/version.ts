@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.3.1";
+export const APP_VERSION = "1.3.2";
 
 export const CHANGELOG = [
+  {
+    version: "1.3.2",
+    title: "Add Place UX polish",
+    date: "2026-04-27",
+    changes: [
+      "Made Add Place lighter with Paste list and Search one modes.",
+      "Replaced the oversized text area with compact auto-growing input.",
+      "Moved examples below the input and shortened helper copy.",
+      "Added floating autocomplete results with richer place details.",
+      "Improved Central Europe biasing and fuzzy typo correction for common travel inputs.",
+    ],
+  },
   {
     version: "1.3.1",
     title: "Batch place capture and scroll fix",
