@@ -7,7 +7,7 @@
  */
 
 import type { ExtractedCandidate, PlaceCategory, SourceType } from "@/lib/types";
-import { detectSourceType } from "@/lib/utils";
+import { detectSourceType, haversineKm } from "@/lib/utils";
 
 export type PartialCandidate = Omit<ExtractedCandidate, "id" | "rawInput" | "status" | "createdAt">;
 
@@ -344,14 +344,33 @@ export interface GeocodingResult {
   lat: number;
   lng: number;
   displayName: string;
+  name?: string;
   city?: string;
   country?: string;
+  countryCode?: string;
   neighborhood?: string;
   address?: string;
+  type?: string;
+  importance?: number;
 }
 
-export async function geocodeQuery(query: string): Promise<GeocodingResult[]> {
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`;
+export interface GeocodeOptions {
+  limit?: number;
+  viewbox?: [number, number, number, number]; // west, south, east, north
+  countryCodes?: string[];
+  near?: { lat: number; lng: number };
+}
+
+export async function geocodeQuery(query: string, options: GeocodeOptions = {}): Promise<GeocodingResult[]> {
+  const params = new URLSearchParams({
+    q: query,
+    format: "json",
+    addressdetails: "1",
+    limit: String(options.limit ?? 5),
+  });
+  if (options.viewbox) params.set("viewbox", options.viewbox.join(","));
+  if (options.countryCodes?.length) params.set("countrycodes", options.countryCodes.join(","));
+  const url = `https://nominatim.openstreetmap.org/search?${params.toString()}`;
 
   try {
     const res = await fetch(url, {
@@ -360,15 +379,26 @@ export async function geocodeQuery(query: string): Promise<GeocodingResult[]> {
     if (!res.ok) throw new Error("Nominatim request failed");
     const data = await res.json();
 
-    return data.map((item: NominatimResult) => ({
+    const mapped: GeocodingResult[] = data.map((item: NominatimResult) => ({
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
       displayName: item.display_name,
-      city: item.address?.city ?? item.address?.town ?? item.address?.village,
+      name: item.name,
+      city: item.address?.city ?? item.address?.town ?? item.address?.village ?? item.address?.municipality,
       country: item.address?.country,
+      countryCode: item.address?.country_code?.toUpperCase(),
       neighborhood: item.address?.neighbourhood ?? item.address?.suburb,
       address: item.display_name,
+      type: item.type ?? item.class,
+      importance: item.importance,
     }));
+
+    if (!options.near) return mapped;
+    return mapped.sort((a, b) => {
+      const da = haversineKm(options.near!.lat, options.near!.lng, a.lat, a.lng);
+      const db = haversineKm(options.near!.lat, options.near!.lng, b.lat, b.lng);
+      return da - db;
+    });
   } catch (e) {
     console.warn("Geocoding failed:", e);
     return [];
@@ -388,10 +418,14 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Geocodin
       lat: parseFloat(item.lat),
       lng: parseFloat(item.lon),
       displayName: item.display_name,
-      city: item.address?.city ?? item.address?.town ?? item.address?.village,
+      name: item.name,
+      city: item.address?.city ?? item.address?.town ?? item.address?.village ?? item.address?.municipality,
       country: item.address?.country,
+      countryCode: item.address?.country_code?.toUpperCase(),
       neighborhood: item.address?.neighbourhood ?? item.address?.suburb,
       address: item.display_name,
+      type: item.type ?? item.class,
+      importance: item.importance,
     };
   } catch {
     return null;
@@ -401,12 +435,18 @@ export async function reverseGeocode(lat: number, lng: number): Promise<Geocodin
 interface NominatimResult {
   lat: string;
   lon: string;
+  name?: string;
   display_name: string;
+  class?: string;
+  type?: string;
+  importance?: number;
   address?: {
     city?: string;
     town?: string;
     village?: string;
+    municipality?: string;
     country?: string;
+    country_code?: string;
     neighbourhood?: string;
     suburb?: string;
   };

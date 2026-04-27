@@ -140,10 +140,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <aside className={cn(
-        "hidden flex-shrink-0 border-r border-border bg-card transition-all duration-200 overflow-hidden md:flex md:flex-col",
+        "sticky top-0 hidden h-screen flex-shrink-0 border-r border-border bg-card transition-all duration-200 overflow-hidden md:flex md:flex-col",
         sidebarOpen ? "w-60" : "w-0 md:w-14"
       )}>
         {/* Logo */}
@@ -218,7 +218,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Top bar */}
         <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sm:gap-3 flex-shrink-0">
           <Button size="icon-sm" variant="ghost" onClick={toggleSidebar} className="hidden flex-shrink-0 md:inline-flex">
@@ -256,7 +256,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto pb-[76px] md:pb-0">
+        <main className="min-h-0 flex-1 pb-[76px] md:pb-0">
           {children}
         </main>
       </div>

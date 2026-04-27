@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.3.1 - Batch Place Capture and Scroll Fix
+
+Released: 2026-04-27
+
+### Added
+
+- Multi-line Add Place parsing where each pasted line becomes one reviewable candidate.
+- Autocomplete suggestions from OpenStreetMap/Nominatim with arrow-key and Enter support.
+- Batch preview with matched place, city/country, confidence, “Did you mean?” review, and ambiguous result choices.
+- Trip-aware location biasing using existing trip countries and nearby coordinates.
+- Duplicate prevention before saving batch places.
+
+### Improved
+
+- Page layout now allows natural vertical scrolling on desktop and mobile.
+- Add Place now adds all valid places in one action and leaves unresolved rows for review.
+- Place names are normalized to clean casing before save.
+
+### Validation
+
+- `npm run build`
+- `npm test -- --runInBand`
+
 ## v1.3.0 - Trust-First Planning Polish
 
 Released: 2026-04-27

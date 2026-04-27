@@ -103,7 +103,7 @@ export default function TripPage() {
   const duration = tripDuration(trip.startDate, trip.endDate);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-full flex-col">
       {/* Trip header */}
       <div className="border-b border-border bg-card px-3 pt-4 pb-0 sm:px-4 sm:pt-5">
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -168,10 +168,10 @@ export default function TripPage() {
       </div>
 
       {/* Tab content */}
-      <div className="flex-1 overflow-hidden">
+      <div className="min-h-0 flex-1">
         {/* PLACES */}
         {tab === "places" && (
-          <div className="h-full flex flex-col">
+          <div className="flex min-h-full flex-col">
             <TripBrief trip={trip} places={places} />
             <div className="flex items-center gap-2 border-b border-border px-3 py-3 sm:px-4">
               <div className="relative flex-1">
@@ -188,7 +188,7 @@ export default function TripPage() {
               </Button>
             </div>
 
-            <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-3 sm:px-4">
+            <div className="flex flex-1 flex-col gap-2 px-3 py-3 sm:px-4">
               {filteredPlaces.length === 0 ? (
                 <div className="text-center py-12 flex flex-col items-center gap-3">
                   <MapPin className="h-10 w-10 text-muted-foreground/30" />
@@ -237,8 +237,8 @@ export default function TripPage() {
 
         {/* MAP */}
         {tab === "map" && (
-          <div className="h-full flex flex-col md:flex-row">
-            <div className="flex-1 min-h-[50vh] md:min-h-0">
+          <div className="flex min-h-[70vh] flex-col md:flex-row">
+            <div className="min-h-[50vh] flex-1 md:min-h-[70vh]">
               <MapView
                 places={filteredPlaces}
                 className="h-full"
@@ -271,7 +271,7 @@ export default function TripPage() {
 
         {/* ITINERARY */}
         {tab === "itinerary" && (
-          <div className="h-full overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
+          <div className="px-3 py-3 sm:px-4 sm:py-4">
             <ItineraryBuilder trip={trip} places={places} />
             {trip.itinerary && trip.itinerary.length > 0 && (
               <div className="mt-6">
@@ -283,14 +283,14 @@ export default function TripPage() {
 
         {/* PACKING */}
         {tab === "packing" && (
-          <div className="h-full overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
+          <div className="px-3 py-3 sm:px-4 sm:py-4">
             <PackingList tripId={trip.id} />
           </div>
         )}
 
         {/* SETTINGS / INFO */}
         {tab === "settings" && (
-          <div className="h-full max-w-xl overflow-y-auto px-3 py-3 sm:px-4 sm:py-4">
+          <div className="max-w-xl px-3 py-3 sm:px-4 sm:py-4">
             <TripForm
               trip={trip}
               onSave={() => toast.success("Trip updated")}

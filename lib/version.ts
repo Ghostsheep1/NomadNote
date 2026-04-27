@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.3.0";
+export const APP_VERSION = "1.3.1";
 
 export const CHANGELOG = [
+  {
+    version: "1.3.1",
+    title: "Batch place capture and scroll fix",
+    date: "2026-04-27",
+    changes: [
+      "Fixed page scrolling so long trip pages and mobile layouts move naturally.",
+      "Rebuilt Add Place around multi-line batch parsing and review before saving.",
+      "Added live place autocomplete with keyboard navigation.",
+      "Added typo-tolerant matching, duplicate prevention, and ambiguous result choices.",
+      "Added trip-aware location biasing for place search.",
+    ],
+  },
   {
     version: "1.3.0",
     title: "Trust-first planning polish",
