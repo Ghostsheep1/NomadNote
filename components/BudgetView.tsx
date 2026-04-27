@@ -4,7 +4,7 @@
  */
 import React from "react";
 import { DollarSign, TrendingUp } from "lucide-react";
-import { PRICE_LABELS, CATEGORY_ICONS, CATEGORY_LABELS } from "@/lib/utils";
+import { PRICE_LABELS, CATEGORY_ICONS, formatCurrencyRange } from "@/lib/utils";
 import type { Place, PriceLevel } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,7 @@ export function BudgetView({ places, currency = "USD" }: BudgetViewProps) {
           <span className="text-sm font-semibold">Estimated spend</span>
         </div>
         <p className="font-display text-2xl font-bold">
-          {currency} {totalMin.toLocaleString()}–{totalMax.toLocaleString()}
+          {formatCurrencyRange(totalMin, totalMax, currency)}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           Rough estimate based on price levels · {freePercent}% of places are free
@@ -66,7 +66,7 @@ export function BudgetView({ places, currency = "USD" }: BudgetViewProps) {
             </div>
             {level !== "free" && (
               <span className="text-xs text-muted-foreground">
-                ~{currency} {(min * group.length).toLocaleString()}–{(max * group.length).toLocaleString()}
+                ~{formatCurrencyRange(min * group.length, max * group.length, currency)}
               </span>
             )}
           </div>

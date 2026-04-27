@@ -47,25 +47,28 @@ Use the Vercel URL once deployed.
 Tag:
 
 ```text
-v1.2.0
+v1.3.0
 ```
 
 Release title:
 
 ```text
-NomadNote v1.2: Actionable local-first travel planner
+NomadNote v1.3: Trust-first local-first travel planner
 ```
 
 Release notes:
 
 ```md
-Version 1.2 release with:
+Version 1.3 release with:
 
 - Local-first trip and place storage
 - Capture inbox for links, notes, and map URLs
 - MapLibre/OpenStreetMap map view
 - Heuristic itinerary builder
 - Actionable Trip Stress Radar with repair buttons
+- Currency-consistent itinerary export
+- Safer JSON import preview and schema validation
+- Adaptive radar CTAs and map loading fallback
 - Packing list, budget view, import/export, command palette, dark mode
 - PWA and iOS packaging path with Capacitor
 - Responsive phone and iPad polish

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Shield, Trash2, Moon, Sun, Monitor } from "lucide-react";
+import { RotateCcw, Shield, Trash2, Moon, Sun, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { useUIStore } from "@/store/ui";
 import { useTripsStore } from "@/store/trips";
 import { clearAllData } from "@/lib/db";
+import { resetDemoData } from "@/lib/demo";
 import { toast } from "sonner";
 import { APP_VERSION, CHANGELOG } from "@/lib/version";
 
@@ -17,6 +18,7 @@ export default function SettingsPage() {
   const { settings, updateSettings } = useUIStore();
   const { loadTrips } = useTripsStore();
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [resetDemoConfirm, setResetDemoConfirm] = useState(false);
 
   const setTheme = (value: "light" | "dark" | "system") => {
     updateSettings({ theme: value });
@@ -34,6 +36,13 @@ export default function SettingsPage() {
     await loadTrips();
     setClearConfirm(false);
     toast.success("All data cleared.");
+  };
+
+  const handleResetDemo = async () => {
+    await resetDemoData();
+    await loadTrips();
+    setResetDemoConfirm(false);
+    toast.success("Demo trips reset. Your personal trips were left alone.");
   };
 
   return (
@@ -121,6 +130,15 @@ export default function SettingsPage() {
       <section className="mb-8">
         <h2 className="font-display text-2xl font-semibold mb-1">Data management</h2>
         <p className="text-sm text-muted-foreground mb-4">All data lives in this browser only.</p>
+        <div className="mb-3 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">Reset demo data</p>
+            <p className="text-xs text-muted-foreground">Reload pristine Tokyo and Lisbon samples without deleting your personal trips</p>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => setResetDemoConfirm(true)}>
+            <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reset demo
+          </Button>
+        </div>
         <div className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-destructive">Clear all data</p>
@@ -178,6 +196,19 @@ export default function SettingsPage() {
           <div className="flex gap-2 pt-2">
             <Button variant="outline" onClick={() => setClearConfirm(false)} className="flex-1">Cancel</Button>
             <Button variant="destructive" onClick={handleClearData} className="flex-1">Delete everything</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetDemoConfirm} onOpenChange={setResetDemoConfirm}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader><DialogTitle>Reset demo trips?</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This replaces only the built-in demo trips with fresh sample data. Your personal trips are not deleted.
+          </p>
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" onClick={() => setResetDemoConfirm(false)} className="flex-1">Cancel</Button>
+            <Button onClick={handleResetDemo} className="flex-1">Reset demo</Button>
           </div>
         </DialogContent>
       </Dialog>

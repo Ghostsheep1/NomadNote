@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.2.0";
+export const APP_VERSION = "1.3.0";
 
 export const CHANGELOG = [
+  {
+    version: "1.3.0",
+    title: "Trust-first planning polish",
+    date: "2026-04-27",
+    changes: [
+      "Fixed currency consistency in itinerary export and budget surfaces.",
+      "Fixed trip date editing so stored dates prefill correctly.",
+      "Made radar action buttons adapt to healthy metrics.",
+      "Added safer JSON import preview with schema validation.",
+      "Improved map loading, retry, and ready states.",
+    ],
+  },
   {
     version: "1.2.0",
     title: "Actionable planning engine",

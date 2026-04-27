@@ -6,7 +6,7 @@ import type { Place } from "@/lib/types";
 import { usePlacesStore } from "@/store/places";
 import { useUIStore } from "@/store/ui";
 import { Button } from "@/components/ui/button";
-import { Layers, Navigation, Plus } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Navigation, Plus, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { reverseGeocode } from "@/features/capture/extractors";
 
@@ -29,6 +29,8 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
   const markersRef = useRef<Map<string, import("maplibre-gl").Marker>>(new Map());
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const [pinDropMode, setPinDropMode] = useState(false);
 
   const { mapView, setMapView, mapStyle } = useUIStore();
@@ -41,6 +43,9 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
     let map: import("maplibre-gl").Map;
 
     const initMap = async () => {
+      try {
+        setMapError(null);
+        setMapLoaded(false);
       const maplibre = await import("maplibre-gl");
 
       map = new maplibre.Map({
@@ -54,6 +59,9 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
       mapRef.current = map;
 
       map.on("load", () => setMapLoaded(true));
+      map.on("error", () => {
+        if (!map.loaded()) setMapError("Map failed to load. Check your connection or retry.");
+      });
 
       map.on("moveend", () => {
         const center = map.getCenter();
@@ -67,6 +75,9 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
         setPinDropMode(false);
         toast.success(`Pin dropped at ${lat.toFixed(5)}, ${lng.toFixed(5)}`);
       });
+      } catch {
+        setMapError("Map failed to load. Check your connection or retry.");
+      }
     };
 
     initMap();
@@ -78,7 +89,7 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [retryKey]);
 
   // ── Update markers ─────────────────────────────────────────
   useEffect(() => {
@@ -191,13 +202,15 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
 
       {/* Map controls */}
       <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
-        <Button size="icon-sm" variant="outline" onClick={handleLocateMe} className="bg-card/90 backdrop-blur-sm shadow-md border-border">
+        <Button size="icon-sm" variant="outline" onClick={handleLocateMe} aria-label="Center map on my location" title="Center map on my location" className="bg-card/90 backdrop-blur-sm shadow-md border-border">
           <Navigation className="h-3.5 w-3.5" />
         </Button>
         {allowPinDrop && (
           <Button
             size="icon-sm"
             variant={pinDropMode ? "default" : "outline"}
+            aria-label={pinDropMode ? "Cancel pin drop" : "Drop a manual pin"}
+            title={pinDropMode ? "Cancel pin drop" : "Drop a manual pin"}
             onClick={() => {
               setPinDropMode(!pinDropMode);
               if (!pinDropMode) toast.info("Click on map to drop a pin");
@@ -215,7 +228,35 @@ export function MapView({ places, className, onPlaceSelect, onMapClick, allowPin
         </div>
       )}
 
-      {!mapLoaded && (
+      {mapLoaded && !mapError && (
+        <div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/90 px-3 py-1 text-xs font-semibold text-secondary shadow-sm backdrop-blur-sm">
+          <CheckCircle2 className="h-3.5 w-3.5" />
+          Map ready
+        </div>
+      )}
+
+      {mapError ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted p-4">
+          <div className="max-w-xs rounded-2xl border border-border bg-card p-4 text-center shadow-sm">
+            <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-destructive" />
+            <p className="text-sm font-semibold">Map failed to load</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">{mapError}</p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-3"
+              onClick={() => {
+                mapRef.current?.remove();
+                mapRef.current = null;
+                setRetryKey((key) => key + 1);
+              }}
+            >
+              <RefreshCw className="mr-2 h-3.5 w-3.5" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      ) : !mapLoaded && (
         <div className="absolute inset-0 bg-muted flex items-center justify-center">
           <div className="text-muted-foreground text-sm animate-pulse">Loading map…</div>
         </div>

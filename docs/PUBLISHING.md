@@ -32,7 +32,7 @@ Recommended repository settings:
 
 Suggested pinned-project blurb:
 
-> NomadNote is a local-first travel planner that does not just store places. Its Trip Stress Radar detects overload, map readiness, weather risk, favorites pressure, city spread, reservation risk, and transit complexity so travelers can rescue unrealistic itineraries before the trip.
+> NomadNote is a local-first travel planner that does not just store places. Its Trip Stress Radar detects overload, map readiness, weather risk, anchor pressure, city spread, reservation risk, and transit complexity so travelers can rescue unrealistic itineraries before the trip.
 
 ## 2.1 Versioning
 
@@ -41,14 +41,14 @@ NomadNote uses semver-style project versions.
 Current version:
 
 ```text
-v1.2.0
+v1.3.0
 ```
 
 After a release-worthy update:
 
 ```bash
-git tag v1.2.0
-git push origin v1.2.0
+git tag v1.3.0
+git push origin v1.3.0
 ```
 
 Create a GitHub Release from the tag and paste the matching notes from `CHANGELOG.md`.
@@ -131,7 +131,7 @@ NomadNote is a private, local-first travel planner for people who save too many 
 
 Paste map links, social links, articles, coordinates, addresses, or plain notes. NomadNote helps turn them into confirmed places, maps them, groups them into trips, and builds realistic day-by-day itineraries.
 
-The unique Trip Stress Radar catches overloaded days, missing map pins, weak rainy-day backup plans, FOMO-heavy itineraries, and neighborhood backtracking before the trip starts.
+The unique Trip Stress Radar catches overloaded days, map gaps, weak rainy-day backup plans, anchor-heavy itineraries, and neighborhood backtracking before the trip starts.
 
 No account. No email. No phone number. Your travel data is stored locally on your device by default, with JSON export/import when you want to move or back up a trip.
 ```
@@ -168,7 +168,7 @@ If the Vercel project is connected to GitHub, the normal update flow is:
 
 ```bash
 git add .
-git commit -m "Release v1.2 actionable planning engine"
+git commit -m "Release v1.3 trust-first planning polish"
 git push origin main
 ```
 

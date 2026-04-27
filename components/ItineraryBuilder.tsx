@@ -119,6 +119,8 @@ function DayColumn({ day, places, onReorder, onToggleLock, expanded, onToggle }:
 
   const totalMin = day.items.reduce((s, i) => s + i.duration + (i.travelTimeFromPrevious ?? 0), 0);
   const displayTitle = day.theme && day.theme !== `Day ${day.dayNumber}` ? day.theme : `Day ${day.dayNumber}`;
+  const targetMin = 8 * 60;
+  const energy = Math.min(100, Math.round((totalMin / targetMin) * 100));
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -133,6 +135,8 @@ function DayColumn({ day, places, onReorder, onToggleLock, expanded, onToggle }:
       <button
         className="w-full flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors"
         onClick={onToggle}
+        aria-expanded={expanded}
+        aria-label={`${expanded ? "Collapse" : "Expand"} day ${day.dayNumber}`}
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -145,6 +149,12 @@ function DayColumn({ day, places, onReorder, onToggleLock, expanded, onToggle }:
             <p className="text-xs text-muted-foreground">
               {day.date && day.date.length === 10 ? formatDate(day.date, "EEE, MMM d") : day.date} · {day.items.length} places · {formatMinutes(totalMin)}
             </p>
+            <div className="mt-2 h-1.5 w-36 overflow-hidden rounded-full bg-muted" title={`Energy load: ${formatMinutes(totalMin)} planned of ${formatMinutes(targetMin)} target`}>
+              <div
+                className={cn("h-full rounded-full", energy > 90 ? "bg-destructive" : energy > 70 ? "bg-accent" : "bg-secondary")}
+                style={{ width: `${energy}%` }}
+              />
+            </div>
           </div>
         </div>
         {expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}

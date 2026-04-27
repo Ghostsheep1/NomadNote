@@ -23,6 +23,7 @@ interface StressFactor {
   action: StressAction;
   actionLabel: string;
   positive?: boolean;
+  actionDisabled?: boolean;
 }
 
 export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps) {
@@ -50,6 +51,9 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
               </Badge>
               <p className="mt-2 text-sm font-semibold">{radar.headline}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{radar.rescue}</p>
+              <p className="mt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                {radar.confidence} confidence · updated {radar.lastUpdated}
+              </p>
             </div>
           </div>
         </div>
@@ -81,7 +85,8 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
               <button
                 type="button"
                 onClick={() => onAction?.(factor.action)}
-                className="mt-3 inline-flex min-h-8 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
+                disabled={factor.actionDisabled}
+                className="mt-3 inline-flex min-h-8 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 disabled:cursor-default disabled:opacity-55 disabled:hover:border-border disabled:hover:bg-card"
               >
                 {factor.actionLabel}
               </button>
@@ -135,6 +140,8 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
   const fomoRisk = places.length < 4 ? 0 : clamp((essentialCount - Math.max(1, tripDays)) * 18 + Math.max(0, mustSeeRatio - 0.5) * 55);
   const spreadRisk = clamp((neighborhoods.size - 2) * 18 + Math.max(0, spreadKm - 8) * 2);
   const score = Math.round(clamp(overload * 0.25 + pinDebt * 0.18 + weatherRisk * 0.14 + fomoRisk * 0.13 + spreadRisk * 0.12 + reservationRisk * 0.08 + transitComplexity * 0.1));
+  const confidence = getRadarConfidence(trip, places);
+  const lastUpdated = formatRelativeUpdate(Math.max(trip.updatedAt, ...places.map((place) => place.updatedAt || 0)));
 
   const worst = [
     { key: "overload", value: overload },
@@ -158,6 +165,8 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
 
   return {
     score,
+    confidence,
+    lastUpdated,
     label: score >= 68 ? "High friction" : score >= 38 ? "Needs tuning" : "Trip feels sane",
     headline:
       score >= 68
@@ -174,7 +183,8 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
         note: averageStops >= 4 ? `${averageStops.toFixed(1)} stops per day is a lot.` : "Daily density looks humane.",
         definition: "How packed each planned day feels after duration and travel time.",
         action: "essentials",
-        actionLabel: "Thin busy days",
+        actionLabel: overload > 0 ? "Thin busy days" : "Keep days humane",
+        actionDisabled: overload === 0,
       },
       {
         label: "Map readiness",
@@ -183,7 +193,7 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
         note: `${mappedPlaces.length}/${places.length} places have coordinates.`,
         definition: "How many saved places have enough map data for routing and clustering.",
         action: "coordinates",
-        actionLabel: "Fix coordinates",
+        actionLabel: pinDebt > 0 ? "Fix coordinates" : "Review locations",
         positive: true,
       },
       {
@@ -193,10 +203,10 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
         note: rainyRatio < 0.35 ? `You have ${indoorCount}; aim for at least ${Math.max(1, Math.ceil(tripDays / 3))} indoor backup${tripDays > 3 ? "s" : ""}.` : "There are enough weather backups.",
         definition: "Whether rainy or low-energy days have indoor alternatives nearby.",
         action: "indoor",
-        actionLabel: "Add indoor backups",
+        actionLabel: weatherRisk > 0 ? "Add indoor backups" : "Maintain backups",
       },
       {
-        label: "Favorites pressure",
+        label: "Anchor pressure",
         value: Math.round(fomoRisk),
         icon: <AlertTriangle />,
         note: fomoRisk > 40 ? `${essentialCount} favorites or anchors may be too many for ${tripDays} day${tripDays === 1 ? "" : "s"}.` : "Priorities are nicely ranked.",
@@ -233,6 +243,25 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
       },
     ] satisfies StressFactor[],
   };
+}
+
+function getRadarConfidence(trip: Trip, places: Place[]) {
+  const hasDates = Boolean(trip.startDate && trip.endDate);
+  const mappedCount = places.filter((place) => typeof place.latitude === "number" && typeof place.longitude === "number").length;
+  if (!hasDates || places.length < 3) return "Low";
+  if (mappedCount < Math.ceil(places.length * 0.6)) return "Medium";
+  return "High";
+}
+
+function formatRelativeUpdate(timestamp: number) {
+  if (!timestamp) return "just now";
+  const minutes = Math.max(0, Math.round((Date.now() - timestamp) / 60_000));
+  if (minutes < 2) return "just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(hours / 24);
+  return `${days}d ago`;
 }
 
 function estimateReservationRisk(places: Place[]) {

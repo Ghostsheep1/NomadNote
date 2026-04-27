@@ -5,7 +5,7 @@
 import React, { useState } from "react";
 import { Copy, Check, Printer, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDate, formatMinutes, CATEGORY_ICONS, PRICE_LABELS } from "@/lib/utils";
+import { formatDate, formatMinutes, CATEGORY_ICONS, formatPriceLevel } from "@/lib/utils";
 import type { Trip, Place, ItineraryDay } from "@/lib/types";
 import { downloadText } from "@/lib/utils";
 import { toast } from "sonner";
@@ -47,7 +47,7 @@ function buildText(trip: Trip, places: Place[], days: ItineraryDay[]): string {
       const time = item.startTime ? `[${item.startTime}] ` : "";
       const icon = CATEGORY_ICONS[p.category];
       const dur  = formatMinutes(item.duration);
-      const price = PRICE_LABELS[p.priceLevel];
+      const price = formatPriceLevel(p.priceLevel, trip.currency);
       const travel = item.travelTimeFromPrevious
         ? `  → ${formatMinutes(item.travelTimeFromPrevious)} walk/transit`
         : "";

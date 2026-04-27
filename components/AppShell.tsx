@@ -17,10 +17,15 @@ import { CaptureInbox } from "@/components/CaptureInbox";
 import { Toaster } from "sonner";
 import { APP_VERSION } from "@/lib/version";
 import { TripForm } from "@/components/TripForm";
-import { importTrip } from "@/lib/db";
+import { EXPORT_SCHEMA_VERSION, importTrip, validateImportBundle } from "@/lib/db";
 import { readFileAsText } from "@/lib/utils";
 import { toast } from "sonner";
-import type { Trip } from "@/lib/types";
+import type { ExportBundle, Trip } from "@/lib/types";
+
+type ImportPreview = {
+  fileName: string;
+  bundle: ExportBundle;
+};
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,6 +38,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [actionsOpen, setActionsOpen] = useState(false);
   const [createTripOpen, setCreateTripOpen] = useState(false);
   const [tripPickerOpen, setTripPickerOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importPreview, setImportPreview] = useState<ImportPreview | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
   const [captureTripId, setCaptureTripId] = useState<string | undefined>();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -88,19 +97,46 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    await previewImportFile(file);
+    e.target.value = "";
+  };
+
+  const previewImportFile = async (file?: File) => {
     if (!file) return;
     try {
       const text = await readFileAsText(file);
-      const bundle = JSON.parse(text);
-      const trip = await importTrip(bundle);
+      const parsed = JSON.parse(text);
+      const result = validateImportBundle(parsed);
+      if (!result.valid) {
+        setImportPreview(null);
+        setImportError(result.reason);
+        return;
+      }
+      setImportPreview({ fileName: file.name, bundle: result.bundle });
+      setImportError(null);
+    } catch {
+      setImportPreview(null);
+      setImportError("Import failed: invalid JSON file.");
+    }
+  };
+
+  const handleConfirmImport = async () => {
+    if (!importPreview) return;
+    setImporting(true);
+    try {
+      const trip = await importTrip(importPreview.bundle);
       await loadTrips();
-      toast.success(`"${trip.name}" imported`);
+      toast.success(`"${trip.name}" imported as a local copy`);
       router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
       setActionsOpen(false);
+      setImportOpen(false);
+      setImportPreview(null);
+      setImportError(null);
     } catch {
-      toast.error("Import failed: invalid NomadNote JSON");
+      toast.error("Import failed");
+    } finally {
+      setImporting(false);
     }
-    e.target.value = "";
   };
 
   return (
@@ -243,9 +279,55 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="grid gap-2">
             <ActionButton icon={<Plus />} label="Add place" description="Choose a trip, then paste links or notes." onClick={handleAddPlace} />
             <ActionButton icon={<Sparkles />} label="New trip" description="Start a fresh private travel workspace." onClick={() => { setActionsOpen(false); setCreateTripOpen(true); }} />
-            <ActionButton icon={<Upload />} label="Import JSON" description="Restore or move a trip export." onClick={() => fileRef.current?.click()} />
+            <ActionButton icon={<Upload />} label="Import JSON" description="Preview a local export before merging." onClick={() => { setActionsOpen(false); setImportOpen(true); }} />
           </div>
-          <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={importOpen} onOpenChange={(open) => { setImportOpen(open); if (!open) { setImportPreview(null); setImportError(null); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Import NomadNote JSON</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm leading-6 text-muted-foreground">
+              Imports are private and local-only. NomadNote expects schema version {EXPORT_SCHEMA_VERSION} and creates a new local copy of the trip instead of overwriting existing trips.
+            </div>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              onDragOver={(event) => event.preventDefault()}
+              onDrop={(event) => {
+                event.preventDefault();
+                void previewImportFile(event.dataTransfer.files[0]);
+              }}
+              className="flex min-h-28 w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card px-4 text-center transition-colors hover:border-primary/40 hover:bg-primary/5"
+            >
+              <Upload className="mb-2 h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold">Drag & drop JSON here</span>
+              <span className="text-xs text-muted-foreground">or choose file to preview before merging</span>
+            </button>
+            <input ref={fileRef} type="file" accept=".json,application/json" className="hidden" onChange={handleImport} />
+            {importError && <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">{importError}</p>}
+            {importPreview && (
+              <div className="rounded-xl border border-border bg-card p-3">
+                <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Ready to import</p>
+                <p className="mt-1 text-sm font-semibold">{importPreview.bundle.trip.emoji ?? "✈️"} {importPreview.bundle.trip.name}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{importPreview.fileName}</p>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                  <ImportStat label="Places" value={importPreview.bundle.places.length} />
+                  <ImportStat label="Lists" value={importPreview.bundle.collections.length} />
+                  <ImportStat label="Packing" value={importPreview.bundle.packingItems.length} />
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant="outline" onClick={() => setImportOpen(false)}>Cancel</Button>
+              <Button onClick={handleConfirmImport} disabled={!importPreview || importing}>
+                {importing ? "Importing..." : "Import local copy"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -322,6 +404,15 @@ function ActionButton({
         <span className="block text-xs text-muted-foreground">{description}</span>
       </span>
     </button>
+  );
+}
+
+function ImportStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg bg-muted/60 px-2 py-2">
+      <div className="font-bold tabular-nums">{value}</div>
+      <div className="text-muted-foreground">{label}</div>
+    </div>
   );
 }
 

@@ -45,7 +45,7 @@ export function TripForm({ trip, onSave, onCancel }: TripFormProps) {
   const { createTrip, updateTrip } = useTripsStore();
   const [selectedEmoji, setSelectedEmoji] = React.useState(trip?.emoji ?? randomTripEmoji());
 
-  const { register, handleSubmit, control, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       name: trip?.name ?? "",
@@ -59,6 +59,22 @@ export function TripForm({ trip, onSave, onCancel }: TripFormProps) {
       notes: trip?.notes ?? "",
     },
   });
+
+  React.useEffect(() => {
+    const nextEmoji = trip?.emoji ?? selectedEmoji;
+    if (trip?.emoji) setSelectedEmoji(trip.emoji);
+    reset({
+      name: trip?.name ?? "",
+      description: trip?.description ?? "",
+      emoji: nextEmoji,
+      startDate: trip?.startDate ?? "",
+      endDate: trip?.endDate ?? "",
+      budgetStyle: trip?.budgetStyle ?? "moderate",
+      itineraryMode: trip?.itineraryMode ?? "balanced",
+      currency: trip?.currency ?? "USD",
+      notes: trip?.notes ?? "",
+    });
+  }, [trip?.id, trip?.startDate, trip?.endDate, trip?.updatedAt, reset]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = handleSubmit(async (data) => {
     const payload = {

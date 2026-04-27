@@ -1,8 +1,8 @@
 # LinkedIn Project Post Draft
 
-I built and published NomadNote v1.2, a local-first travel planner for people who save too many places and need a trip that will actually feel good in real life.
+I built and published NomadNote v1.3, a local-first travel planner for people who save too many places and need a trip that will actually feel good in real life.
 
-The differentiator is Trip Stress Radar: instead of only helping users add more places, NomadNote detects when a trip is becoming unrealistic. It scores overload, map readiness, rain risk, favorites pressure, city spread, reservation risk, and transit complexity, then gives concrete repair actions.
+The differentiator is Trip Stress Radar: instead of only helping users add more places, NomadNote detects when a trip is becoming unrealistic. It scores overload, map readiness, rain risk, anchor pressure, city spread, reservation risk, and transit complexity, then gives concrete repair actions.
 
 What I built:
 
@@ -12,7 +12,7 @@ What I built:
 - Capture inbox for map links, social links, coordinates, and notes
 - Transparent heuristic itinerary builder
 - Responsive phone/tablet/desktop UI
-- Actionable radar repair flows and saved itinerary insights
+- Trust-first polish: correct currencies, safer imports, adaptive radar actions, saved itinerary insights
 - PWA support and Capacitor iOS packaging path
 - GitHub Actions CI, App Store metadata, privacy/support docs
 

@@ -106,11 +106,42 @@ export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
 
 export const PRICE_LABELS: Record<PriceLevel, string> = {
   free: "Free",
-  budget: "$",
-  moderate: "$$",
-  expensive: "$$$",
-  luxury: "$$$$",
+  budget: "Budget",
+  moderate: "Moderate",
+  expensive: "Expensive",
+  luxury: "Luxury",
 };
+
+export const PRICE_LEVEL_MULTIPLIER: Record<PriceLevel, number> = {
+  free: 0,
+  budget: 1,
+  moderate: 2,
+  expensive: 3,
+  luxury: 4,
+};
+
+export function formatCurrency(value: number, currency = "USD"): string {
+  const normalized = (currency || "USD").toUpperCase();
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: normalized,
+      maximumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    }).format(value);
+  } catch {
+    return `${normalized} ${value.toLocaleString()}`;
+  }
+}
+
+export function formatCurrencyRange(min: number, max: number, currency = "USD"): string {
+  if (min === max) return formatCurrency(min, currency);
+  return `${formatCurrency(min, currency)}–${formatCurrency(max, currency)}`;
+}
+
+export function formatPriceLevel(priceLevel: PriceLevel, currency = "USD"): string {
+  if (priceLevel === "free") return "Free";
+  return `${PRICE_LABELS[priceLevel]} · ${currency.toUpperCase()}`;
+}
 
 export const PRICE_COLORS: Record<PriceLevel, string> = {
   free: "text-sage-600 dark:text-sage-400",

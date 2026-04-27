@@ -1,7 +1,7 @@
 import Dexie, { type Table } from "dexie";
 import type {
   Place, Trip, Collection, Reservation,
-  JournalEntry, PackingItem, ExtractedCandidate, AppSettings
+  JournalEntry, PackingItem, ExtractedCandidate, AppSettings, ExportBundle
 } from "./types";
 import { defaultSettings } from "./types";
 
@@ -32,6 +32,7 @@ export class NomadNoteDB extends Dexie {
 }
 
 export const db = new NomadNoteDB();
+export const EXPORT_SCHEMA_VERSION = 1;
 
 // ── Seed default settings if not present ────────────────────
 export async function ensureSettings(): Promise<AppSettings> {
@@ -245,13 +246,28 @@ export async function exportTrip(tripId: string) {
     ]);
   if (!trip) throw new Error("Trip not found");
   return {
-    version: 1 as const,
+    version: EXPORT_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
     trip, places, collections, reservations, journalEntries, packingItems,
   };
 }
 
-export async function importTrip(bundle: ReturnType<typeof exportTrip> extends Promise<infer T> ? T : never): Promise<Trip> {
+export function validateImportBundle(value: unknown): { valid: true; bundle: ExportBundle } | { valid: false; reason: string } {
+  if (!value || typeof value !== "object") return { valid: false, reason: "This file is not a NomadNote JSON export." };
+  const bundle = value as Partial<ExportBundle>;
+  if (bundle.version !== EXPORT_SCHEMA_VERSION) {
+    return { valid: false, reason: `Unsupported export schema. Expected version ${EXPORT_SCHEMA_VERSION}.` };
+  }
+  if (!bundle.trip || typeof bundle.trip.name !== "string") {
+    return { valid: false, reason: "Missing trip data." };
+  }
+  if (!Array.isArray(bundle.places) || !Array.isArray(bundle.collections) || !Array.isArray(bundle.reservations) || !Array.isArray(bundle.journalEntries) || !Array.isArray(bundle.packingItems)) {
+    return { valid: false, reason: "Missing one or more NomadNote data sections." };
+  }
+  return { valid: true, bundle: bundle as ExportBundle };
+}
+
+export async function importTrip(bundle: ExportBundle): Promise<Trip> {
   const { nanoid } = await import("nanoid");
   const now = Date.now();
   const idMap = new Map<string, string>();

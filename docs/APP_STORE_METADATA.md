@@ -22,7 +22,7 @@ NomadNote is a private travel planner for people who save too many places and wa
 
 Capture Google Maps links, Apple Maps links, social posts, articles, addresses, coordinates, screenshots, or plain notes. Confirm extracted place candidates, organize them into trips, view them on a map, and build day-by-day itineraries.
 
-What makes NomadNote different is Trip Stress Radar. It checks overload, map readiness, rain resilience, favorites pressure, city spread, reservation risk, and transit complexity, then gives you concrete rescue actions so your plan feels possible in real life.
+What makes NomadNote different is Trip Stress Radar. It checks overload, map readiness, rain resilience, anchor pressure, city spread, reservation risk, and transit complexity, then gives you concrete rescue actions so your plan feels possible in real life.
 
 No account. No email. No phone number. No mandatory backend. Your data is stored locally on your device by default, and you can export/import trips as JSON whenever you want.
 

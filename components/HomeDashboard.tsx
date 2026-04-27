@@ -32,7 +32,7 @@ export function HomeDashboard({ trips, onCreateTrip, onImportTrip }: HomeDashboa
             Plan the trip before the itinerary ruins it.
           </h1>
           <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-            Capture everything, then let Trip Stress Radar catch overload, pin debt, rain risk, and backtracking before your vacation turns into homework.
+            Capture everything, then let Trip Stress Radar catch overload, map gaps, rain risk, and backtracking before your vacation turns into homework.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
             <button onClick={onCreateTrip} className="nomad-action nomad-action-primary">

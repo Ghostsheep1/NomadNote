@@ -127,16 +127,16 @@ export default function TripPage() {
           </div>
 
           <div className="grid grid-cols-4 gap-1 sm:flex sm:flex-shrink-0">
-            <Button size="icon-sm" variant="ghost" onClick={handleRandom} title="Random spot picker">
+            <Button size="icon-sm" variant="ghost" onClick={handleRandom} title="Random spot picker" aria-label="Random spot picker">
               <Shuffle className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon-sm" variant="ghost" onClick={handleRainyDay} title="Rainy day options">
+            <Button size="icon-sm" variant="ghost" onClick={handleRainyDay} title="Rainy day options" aria-label="Rainy day options">
               <Umbrella className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon-sm" variant="ghost" onClick={handleExport} title="Export trip">
+            <Button size="icon-sm" variant="ghost" onClick={handleExport} title="Export trip" aria-label="Export trip">
               <Download className="h-3.5 w-3.5" />
             </Button>
-            <Button size="icon-sm" variant="ghost" onClick={() => setEditTripOpen(true)} title="Edit trip">
+            <Button size="icon-sm" variant="ghost" onClick={() => setEditTripOpen(true)} title="Edit trip" aria-label="Edit trip">
               <Settings2 className="h-3.5 w-3.5" />
             </Button>
           </div>
