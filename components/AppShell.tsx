@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
-  Settings, Plus, Command, Home, Search,
+  Settings, Plus, Command, Home, Search, Upload, Sparkles,
   PanelLeftClose, PanelLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -16,14 +16,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { CaptureInbox } from "@/components/CaptureInbox";
 import { Toaster } from "sonner";
 import { APP_VERSION } from "@/lib/version";
+import { TripForm } from "@/components/TripForm";
+import { importTrip } from "@/lib/db";
+import { readFileAsText } from "@/lib/utils";
+import { toast } from "sonner";
+import type { Trip } from "@/lib/types";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const {
-    sidebarOpen, toggleSidebar, captureOpen, openCapture, closeCapture,
+    sidebarOpen, toggleSidebar, captureOpen, closeCapture,
     toggleCommandPalette, settings,
   } = useUIStore();
-  const { trips, loadTrips } = useTripsStore();
+  const { trips, activeTrip, loadTrips } = useTripsStore();
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const [createTripOpen, setCreateTripOpen] = useState(false);
+  const [tripPickerOpen, setTripPickerOpen] = useState(false);
+  const [captureTripId, setCaptureTripId] = useState<string | undefined>();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Apply theme
   useEffect(() => {
@@ -45,14 +56,52 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === "n") {
         e.preventDefault();
-        openCapture();
+        openActions();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [toggleCommandPalette, openCapture]);
+  }, [toggleCommandPalette]);
+
+  useEffect(() => {
+    const handler = () => openActions();
+    window.addEventListener("nomadnote:open-actions", handler);
+    return () => window.removeEventListener("nomadnote:open-actions", handler);
+  }, [activeTrip?.id, trips.length]);
 
   const recentTrips = trips.filter((t) => !t.archived).slice(0, 5);
+  const activeTrips = trips.filter((t) => !t.archived);
+
+  const openActions = () => setActionsOpen(true);
+
+  const openCaptureForTrip = (tripId: string) => {
+    setCaptureTripId(tripId);
+    setActionsOpen(false);
+    setTripPickerOpen(false);
+    useUIStore.getState().openCapture();
+  };
+
+  const handleAddPlace = () => {
+    if (activeTrip?.id && pathname === "/trips") openCaptureForTrip(activeTrip.id);
+    else setTripPickerOpen(true);
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await readFileAsText(file);
+      const bundle = JSON.parse(text);
+      const trip = await importTrip(bundle);
+      await loadTrips();
+      toast.success(`"${trip.name}" imported`);
+      router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
+      setActionsOpen(false);
+    } catch {
+      toast.error("Import failed: invalid NomadNote JSON");
+    }
+    e.target.value = "";
+  };
 
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
@@ -111,7 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Quick add + command palette */}
         {sidebarOpen && (
           <div className="p-3 border-t border-border flex flex-col gap-2">
-            <Button onClick={openCapture} size="sm" className="w-full justify-start gap-2">
+            <Button onClick={openActions} size="sm" className="w-full justify-start gap-2">
               <Plus className="h-3.5 w-3.5" /> Add Place
             </Button>
             <Button
@@ -164,7 +213,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Search className="h-4 w-4" />
           </Button>
 
-          <Button size="sm" onClick={openCapture} className="flex-shrink-0 px-2 sm:px-3">
+          <Button size="sm" onClick={openActions} className="flex-shrink-0 px-2 sm:px-3" aria-label="Open quick actions">
             <Plus className="h-4 w-4 mr-1.5" />
             <span className="hidden sm:inline">Add</span>
           </Button>
@@ -182,14 +231,97 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <DialogHeader>
             <DialogTitle>Add a place</DialogTitle>
           </DialogHeader>
-          <CaptureInbox onClose={closeCapture} />
+          <CaptureInbox tripId={captureTripId} onClose={closeCapture} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={actionsOpen} onOpenChange={setActionsOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Quick action</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-2">
+            <ActionButton icon={<Plus />} label="Add place" description="Choose a trip, then paste links or notes." onClick={handleAddPlace} />
+            <ActionButton icon={<Sparkles />} label="New trip" description="Start a fresh private travel workspace." onClick={() => { setActionsOpen(false); setCreateTripOpen(true); }} />
+            <ActionButton icon={<Upload />} label="Import JSON" description="Restore or move a trip export." onClick={() => fileRef.current?.click()} />
+          </div>
+          <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createTripOpen} onOpenChange={setCreateTripOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>New trip</DialogTitle>
+          </DialogHeader>
+          <TripForm
+            onSave={(trip: Trip) => {
+              setCreateTripOpen(false);
+              router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
+            }}
+            onCancel={() => setCreateTripOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={tripPickerOpen} onOpenChange={setTripPickerOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Choose a trip</DialogTitle>
+          </DialogHeader>
+          {activeTrips.length > 0 ? (
+            <div className="grid gap-2">
+              {activeTrips.map((trip) => (
+                <button
+                  key={trip.id}
+                  onClick={() => openCaptureForTrip(trip.id)}
+                  className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:bg-muted"
+                >
+                  <span className="text-xl">{trip.emoji ?? "✈️"}</span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{trip.name}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{trip.description ?? "Add a place to this trip"}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-muted/40 p-4 text-sm text-muted-foreground">
+              Create a trip before adding places.
+              <Button className="mt-3 w-full" onClick={() => { setTripPickerOpen(false); setCreateTripOpen(true); }}>
+                <Sparkles className="mr-2 h-4 w-4" /> New trip
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
       <CommandPalette />
       <Toaster position="bottom-right" richColors closeButton />
-      <MobileNav pathname={pathname} openCapture={openCapture} />
+      <MobileNav pathname={pathname} openActions={openActions} activeTrip={activeTrip} />
     </div>
+  );
+}
+
+function ActionButton({
+  icon,
+  label,
+  description,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  description: string;
+  onClick: () => void;
+}) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:bg-muted">
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+      <span>
+        <span className="block text-sm font-semibold">{label}</span>
+        <span className="block text-xs text-muted-foreground">{description}</span>
+      </span>
+    </button>
   );
 }
 
@@ -213,17 +345,25 @@ function SidebarLink({ href, icon, label, open, active }: {
 
 function MobileNav({
   pathname,
-  openCapture,
+  openActions,
+  activeTrip,
 }: {
   pathname: string;
-  openCapture: () => void;
+  openActions: () => void;
+  activeTrip?: Trip | null;
 }) {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">
-      <div className="mx-auto grid max-w-sm grid-cols-3 gap-2">
+      <div className="mx-auto grid max-w-md grid-cols-4 gap-2">
         <MobileNavLink href="/" active={pathname === "/"} icon={<Home className="h-4 w-4" />} label="Trips" />
+        <MobileNavLink
+          href={activeTrip ? `/trips?id=${encodeURIComponent(activeTrip.id)}` : "/"}
+          active={pathname === "/trips"}
+          icon={<Sparkles className="h-4 w-4" />}
+          label="Radar"
+        />
         <button
-          onClick={openCapture}
+          onClick={openActions}
           className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl bg-primary px-2 text-xs font-semibold text-primary-foreground shadow-sm"
         >
           <Plus className="h-4 w-4" />

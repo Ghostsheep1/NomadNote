@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search, Upload, Map, SlidersHorizontal } from "lucide-react";
+import { Plus, Search, Map, SlidersHorizontal, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -9,8 +9,7 @@ import { TripCard } from "@/components/TripCard";
 import { TripForm } from "@/components/TripForm";
 import { HomeDashboard } from "@/components/HomeDashboard";
 import { useTripsStore } from "@/store/trips";
-import { importTrip } from "@/lib/db";
-import { readFileAsText } from "@/lib/utils";
+import { resetDemoData } from "@/lib/demo";
 import { toast } from "sonner";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Trip } from "@/lib/types";
@@ -21,7 +20,6 @@ export default function HomePage() {
   const [showArchived, setShowArchived] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Trip | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
   const active = trips.filter((t) => !t.archived);
@@ -32,22 +30,6 @@ export default function HomePage() {
     t.description?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      const text = await readFileAsText(file);
-      const bundle = JSON.parse(text);
-      const trip = await importTrip(bundle);
-      await loadTrips();
-      toast.success(`"${trip.name}" imported!`);
-      router.push(`/trips?id=${encodeURIComponent(trip.id)}`);
-    } catch {
-      toast.error("Import failed — invalid file format");
-    }
-    e.target.value = "";
-  };
-
   const handleDelete = async () => {
     if (!deleteTarget) return;
     await deleteTrip(deleteTarget.id);
@@ -55,16 +37,23 @@ export default function HomePage() {
     setDeleteTarget(null);
   };
 
+  const handleLoadDemo = async () => {
+    await resetDemoData();
+    await loadTrips();
+    toast.success("Demo trips loaded");
+    router.push("/trips?id=demo-tokyo");
+  };
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-3 py-4 sm:gap-7 sm:px-6 sm:py-6 lg:px-8">
       <HomeDashboard
         trips={trips}
         onCreateTrip={() => setCreateOpen(true)}
-        onImportTrip={() => fileRef.current?.click()}
+        onImportTrip={() => window.dispatchEvent(new CustomEvent("nomadnote:open-actions"))}
       />
 
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm md:flex-row md:items-center">
+      <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -74,21 +63,6 @@ export default function HomePage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <Button
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            title="Import trip JSON"
-            className="flex-1 sm:flex-none"
-          >
-            <Upload className="h-4 w-4 mr-1.5" />
-            Import
-          </Button>
-          <Button onClick={() => setCreateOpen(true)} className="flex-1 sm:flex-none">
-            <Plus className="h-4 w-4 mr-1.5" /> New trip
-          </Button>
-        </div>
-        <input ref={fileRef} type="file" accept=".json" className="hidden" onChange={handleImport} />
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
@@ -147,6 +121,9 @@ export default function HomePage() {
             <div className="flex gap-3">
               <Button onClick={() => setCreateOpen(true)}>
                 <Plus className="h-4 w-4 mr-1.5" /> New trip
+              </Button>
+              <Button variant="outline" onClick={handleLoadDemo}>
+                <Sparkles className="h-4 w-4 mr-1.5" /> Load sample trip
               </Button>
             </div>
           )}

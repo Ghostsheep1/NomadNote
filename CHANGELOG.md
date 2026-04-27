@@ -1,5 +1,39 @@
 # Changelog
 
+## v1.2.0 - Actionable Planning Engine
+
+Released: 2026-04-27
+
+### Added
+
+- Radar action buttons for map readiness, rain backups, favorites pressure, city spread, reservation risk, and transit complexity.
+- Load/reset sample trip flow from the home empty state.
+- Demo trips with saved itineraries so new users immediately see insights and realistic radar signals.
+- Mobile bottom Radar entry for faster phone navigation.
+- Clickable paste examples for first-place empty states.
+
+### Improved
+
+- Trip Stress Radar calibration for tiny trips so one favorite no longer creates fake FOMO panic.
+- Packing list UX with clear checkbox-vs-delete affordances and accurate packed progress.
+- Global Add flow now asks which trip to use when no trip context is open.
+- Command palette now opens the scoped action sheet and includes explicit Light/Dark/System theme choices.
+- Capture copy now says “Looking up details...”, “Matched”, or “Couldn’t match automatically” instead of overclaiming.
+- Trip card copy now says “Favorites” and “Map-ready”.
+
+### Fixed
+
+- Saved itineraries now show Trip Insights instead of staying stuck on “Build an itinerary first”.
+- Removed duplicate “Day 1 Day 1” style itinerary headings.
+- Updated Capacitor config for the newer iOS tooling schema.
+
+### Validation
+
+- `npm run build`
+- `npm run build:static`
+- `npm test -- --runInBand`
+- `npm audit --audit-level=high`
+
 ## v1.1.0 - Responsive Polish
 
 Released: 2026-04-21

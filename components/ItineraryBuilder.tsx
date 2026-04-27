@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
   useSensor, useSensors, DragEndEvent,
@@ -118,6 +118,7 @@ function DayColumn({ day, places, onReorder, onToggleLock, expanded, onToggle }:
   );
 
   const totalMin = day.items.reduce((s, i) => s + i.duration + (i.travelTimeFromPrevious ?? 0), 0);
+  const displayTitle = day.theme && day.theme !== `Day ${day.dayNumber}` ? day.theme : `Day ${day.dayNumber}`;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -139,7 +140,7 @@ function DayColumn({ day, places, onReorder, onToggleLock, expanded, onToggle }:
           </div>
           <div className="text-left">
             <p className="text-sm font-semibold">
-              {day.theme ?? `Day ${day.dayNumber}`}
+              {displayTitle}
             </p>
             <p className="text-xs text-muted-foreground">
               {day.date && day.date.length === 10 ? formatDate(day.date, "EEE, MMM d") : day.date} · {day.items.length} places · {formatMinutes(totalMin)}
@@ -187,9 +188,22 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
   const [insights, setInsights] = useState<TripInsight[]>([]);
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
   const [showInsights, setShowInsights] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const { saveItinerary } = useTripsStore();
 
   const numDays = tripDuration(trip.startDate, trip.endDate) || Math.max(1, Math.ceil(places.length / 4));
+  const computedInsights = insights.length || !days.length ? insights : analyzeTrip(places, numDays);
+
+  useEffect(() => {
+    setDays(trip.itinerary ?? []);
+    setDirty(false);
+    if (trip.itinerary?.length) {
+      setInsights(analyzeTrip(places, numDays));
+      setExpandedDays((prev) => prev.size ? prev : new Set([trip.itinerary![0].date]));
+    } else {
+      setInsights([]);
+    }
+  }, [trip.id, trip.itinerary, places, numDays]);
 
   const handleBuild = useCallback(async () => {
     setBuilding(true);
@@ -199,6 +213,7 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
     const newDays = suggestionToItinerary(suggestion);
     setDays(newDays);
     await saveItinerary(trip.id, newDays);
+    setDirty(false);
 
     const tripInsights = analyzeTrip(places, numDays);
     setInsights(tripInsights);
@@ -215,6 +230,7 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
 
   const handleReorder = (dayDate: string, items: ItineraryItem[]) => {
     setDays((prev) => prev.map((d) => d.date === dayDate ? { ...d, items } : d));
+    setDirty(true);
   };
 
   const handleToggleLock = (dayDate: string, itemId: string) => {
@@ -225,10 +241,12 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
           : d
       )
     );
+    setDirty(true);
   };
 
   const handleSave = async () => {
     await saveItinerary(trip.id, days);
+    setDirty(false);
     toast.success("Itinerary saved");
   };
 
@@ -250,7 +268,10 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/40 p-3 sm:p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-sm font-semibold">Auto-build itinerary</h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-sm font-semibold">Auto-build itinerary</h3>
+              {dirty && <Badge variant="warning" className="text-[11px]">Unsaved itinerary changes</Badge>}
+            </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               {places.filter((p) => p.latitude && p.longitude).length} of {places.length} places have coordinates · {numDays} days
             </p>
@@ -307,8 +328,12 @@ export function ItineraryBuilder({ trip, places }: ItineraryBuilderProps) {
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="flex flex-col gap-2 p-4 rounded-xl bg-accent/10 border border-accent/20">
               <p className="text-xs font-semibold text-accent-foreground/80 uppercase tracking-wide">Trip Insights</p>
-              {insights.length === 0 && <p className="text-xs text-muted-foreground">Build an itinerary first to see insights.</p>}
-              {insights.map((ins, i) => (
+              {computedInsights.length === 0 && (
+                <p className="text-xs text-muted-foreground">
+                  {days.length ? "Not enough trip data yet for meaningful insights." : "Build an itinerary first to see insights."}
+                </p>
+              )}
+              {computedInsights.map((ins, i) => (
                 <div key={i} className="flex gap-2 items-start">
                   <span className="text-base flex-shrink-0">{ins.icon}</span>
                   <div>

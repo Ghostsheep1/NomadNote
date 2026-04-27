@@ -76,6 +76,7 @@ export function PackingList({ tripId }: PackingListProps) {
       packed: false,
     });
     setNewName("");
+    setExpandedCats((prev) => new Set(prev).add(newCategory));
   };
 
   const handleToggle = async (item: PackingItem) => {
@@ -92,6 +93,8 @@ export function PackingList({ tripId }: PackingListProps) {
     const toAdd = template.filter((t) => !items.some((i) => i.name === t.name));
     if (!toAdd.length) { toast.info("Template items already added"); return; }
     await packingRepo.bulkCreate(toAdd.map((t) => ({ ...t, id: genId(), tripId })));
+    setNewCategory(category);
+    setExpandedCats((prev) => new Set(prev).add(category));
     toast.success(`${toAdd.length} items added from template`);
   };
 
@@ -125,11 +128,13 @@ export function PackingList({ tripId }: PackingListProps) {
       )}
 
       {/* Add item */}
-      <div className="flex gap-2">
+      <div className="rounded-xl border border-border bg-card p-3">
+        <div className="grid gap-2 sm:grid-cols-[150px_1fr_auto]">
         <select
           value={newCategory}
           onChange={(e) => setNewCategory(e.target.value)}
-          className="h-9 rounded-lg border border-input bg-card px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+          aria-label="Packing category"
+          className="h-10 rounded-lg border border-input bg-background px-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         >
           {DEFAULT_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -140,9 +145,12 @@ export function PackingList({ tripId }: PackingListProps) {
           onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           className="flex-1"
         />
-        <Button size="icon" onClick={handleAdd}>
+        <Button size="default" onClick={handleAdd}>
           <Plus className="h-4 w-4" />
+          <span className="ml-2">Add item</span>
         </Button>
+        </div>
+        <p className="mt-2 text-xs text-muted-foreground">Use the checkbox to mark packed. Use the trash button only when you want to remove an item.</p>
       </div>
 
       {/* Template quick-add buttons */}
@@ -152,6 +160,7 @@ export function PackingList({ tripId }: PackingListProps) {
           <button
             key={cat}
             onClick={() => loadTemplate(cat)}
+            aria-label={`Add ${cat} packing template`}
             className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground hover:bg-muted/80 transition-colors"
           >
             + {cat}
@@ -167,6 +176,7 @@ export function PackingList({ tripId }: PackingListProps) {
           <div key={cat} className="rounded-xl border border-border overflow-hidden">
             <button
               onClick={() => toggleCat(cat)}
+              aria-expanded={expandedCats.has(cat)}
               className="w-full flex items-center justify-between p-3 bg-card hover:bg-muted/50 transition-colors"
             >
               <div className="flex items-center gap-2">
@@ -189,6 +199,7 @@ export function PackingList({ tripId }: PackingListProps) {
                       <div key={item.id} className="flex items-center gap-3 px-3 py-2.5 group">
                         <button
                           onClick={() => handleToggle(item)}
+                          aria-label={item.packed ? `Mark ${item.name} unpacked` : `Mark ${item.name} packed`}
                           className={cn(
                             "w-5 h-5 rounded flex items-center justify-center border transition-all flex-shrink-0",
                             item.packed
@@ -203,7 +214,8 @@ export function PackingList({ tripId }: PackingListProps) {
                         </span>
                         <button
                           onClick={() => handleDelete(item.id)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                          aria-label={`Delete ${item.name}`}
+                          className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive sm:opacity-0 sm:group-hover:opacity-100"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>

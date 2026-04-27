@@ -42,6 +42,7 @@ export default function TripPage() {
   const trip = trips.find((t) => t.id === id);
 
   const [captureOpen, setCaptureOpen] = useState(false);
+  const [capturePrefill, setCapturePrefill] = useState("");
   const [editPlace, setEditPlace] = useState<Place | null>(null);
   const [editTripOpen, setEditTripOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Place | null>(null);
@@ -80,6 +81,11 @@ export default function TripPage() {
     const opts = findRainyDayAlternatives(filteredPlaces);
     setRainyDay(opts);
     if (!opts.length) toast.info("No indoor places saved yet");
+  };
+
+  const openCaptureWithExample = (example: string) => {
+    setCapturePrefill(example);
+    setCaptureOpen(true);
   };
 
   if (!trip) {
@@ -177,7 +183,7 @@ export default function TripPage() {
                   onChange={(e) => setFilters({ search: e.target.value })}
                 />
               </div>
-              <Button size="sm" variant="outline" onClick={() => setCaptureOpen(true)} className="px-2 sm:px-3">
+              <Button size="sm" variant="outline" onClick={() => { setCapturePrefill(""); setCaptureOpen(true); }} className="px-2 sm:px-3">
                 <Plus className="h-3.5 w-3.5 mr-1" /> Add
               </Button>
             </div>
@@ -190,9 +196,27 @@ export default function TripPage() {
                     {filters.search ? "No places match your search" : "No places yet — add your first one!"}
                   </p>
                   {!filters.search && (
-                    <Button onClick={() => setCaptureOpen(true)} size="sm">
-                      <Plus className="h-3.5 w-3.5 mr-1.5" /> Add a place
-                    </Button>
+                    <div className="flex flex-col items-center gap-3">
+                      <Button onClick={() => { setCapturePrefill(""); setCaptureOpen(true); }} size="sm">
+                        <Plus className="h-3.5 w-3.5 mr-1.5" /> Add a place
+                      </Button>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {[
+                          "Tokyo Station, Tokyo",
+                          "35.7148, 139.7967",
+                          "https://www.google.com/maps?q=Senso-ji+Temple+Tokyo",
+                        ].map((example) => (
+                          <button
+                            key={example}
+                            type="button"
+                            onClick={() => openCaptureWithExample(example)}
+                            className="rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+                          >
+                            Try: {example.length > 28 ? `${example.slice(0, 25)}...` : example}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -276,10 +300,10 @@ export default function TripPage() {
       </div>
 
       {/* Capture dialog */}
-      <Dialog open={captureOpen} onOpenChange={setCaptureOpen}>
+      <Dialog open={captureOpen} onOpenChange={(open) => { setCaptureOpen(open); if (!open) setCapturePrefill(""); }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader><DialogTitle>Add a place</DialogTitle></DialogHeader>
-          <CaptureInbox tripId={trip.id} onClose={() => setCaptureOpen(false)} />
+          <CaptureInbox tripId={trip.id} initialInput={capturePrefill} onClose={() => { setCaptureOpen(false); setCapturePrefill(""); }} />
         </DialogContent>
       </Dialog>
 
@@ -337,7 +361,24 @@ export default function TripPage() {
             <DialogTitle>🌧️ Rainy Day Alternatives</DialogTitle>
           </DialogHeader>
           {rainyDay && rainyDay.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No indoor places saved yet. Add some museums, cafés, or galleries!</p>
+            <div className="space-y-3">
+              <p className="text-muted-foreground text-sm">No indoor places saved yet. Add a museum, cafe, gallery, or bookstore backup near your busiest neighborhood.</p>
+              <div className="flex flex-wrap gap-2">
+                {["Museum near me", "Cafe near hotel", "Gallery near downtown"].map((example) => (
+                  <Button
+                    key={example}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setRainyDay(null);
+                      openCaptureWithExample(example);
+                    }}
+                  >
+                    {example}
+                  </Button>
+                ))}
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col gap-2">
               {rainyDay?.map((p) => <PlaceCard key={p.id} place={p} compact />)}

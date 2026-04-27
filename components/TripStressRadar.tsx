@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CloudRain, Compass, MapPinned, ShieldCheck, Sparkles, Zap } from "lucide-react";
+import { AlertTriangle, CalendarClock, CloudRain, Compass, MapPinned, Route, Sparkles, Zap } from "lucide-react";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn, haversineKm } from "@/lib/utils";
@@ -9,16 +9,23 @@ import type { Place, Trip } from "@/lib/types";
 interface TripStressRadarProps {
   trip: Trip;
   places: Place[];
+  onAction?: (action: StressAction) => void;
 }
+
+export type StressAction = "coordinates" | "indoor" | "essentials" | "neighborhoods" | "reservations" | "transit";
 
 interface StressFactor {
   label: string;
   value: number;
   icon: ReactNode;
   note: string;
+  definition: string;
+  action: StressAction;
+  actionLabel: string;
+  positive?: boolean;
 }
 
-export function TripStressRadar({ trip, places }: TripStressRadarProps) {
+export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps) {
   const radar = analyzeTripStress(trip, places);
 
   return (
@@ -32,7 +39,7 @@ export function TripStressRadar({ trip, places }: TripStressRadarProps) {
           </div>
           <h2 className="font-display text-[1.8rem] font-bold leading-none sm:text-3xl">Trip Stress Radar</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Most planners help you add more. This one tells you when the plan will actually feel bad, then gives you a rescue move.
+            Most planners help you add more. This one spots what will make the trip feel bad, then gives you the next repair.
           </p>
 
           <div className="mt-5 flex flex-col gap-4 min-[380px]:flex-row min-[380px]:items-center">
@@ -63,12 +70,21 @@ export function TripStressRadar({ trip, places }: TripStressRadarProps) {
                 <div
                   className={cn(
                     "h-full rounded-full transition-all",
-                    factor.value >= 70 ? "bg-destructive" : factor.value >= 40 ? "bg-accent" : "bg-secondary"
+                    factor.positive
+                      ? factor.value >= 70 ? "bg-secondary" : factor.value >= 40 ? "bg-accent" : "bg-destructive"
+                      : factor.value >= 70 ? "bg-destructive" : factor.value >= 40 ? "bg-accent" : "bg-secondary"
                   )}
                   style={{ width: `${factor.value}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground">{factor.note}</p>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground" title={factor.definition}>{factor.note}</p>
+              <button
+                type="button"
+                onClick={() => onAction?.(factor.action)}
+                className="mt-3 inline-flex min-h-8 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10"
+              >
+                {factor.actionLabel}
+              </button>
             </div>
           ))}
         </div>
@@ -100,35 +116,44 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
   const total = places.length || 1;
   const mappedPlaces = places.filter((place) => typeof place.latitude === "number" && typeof place.longitude === "number");
   const mappedRatio = mappedPlaces.length / total;
-  const rainyRatio = places.filter((place) => place.indoorOutdoor === "indoor" || place.indoorOutdoor === "both").length / total;
-  const mustSeeRatio = places.filter((place) => place.priority <= 2 || place.favorite).length / total;
+  const indoorCount = places.filter((place) => place.indoorOutdoor === "indoor" || place.indoorOutdoor === "both").length;
+  const rainyRatio = indoorCount / total;
+  const essentialCount = places.filter((place) => place.priority <= 2 || place.favorite).length;
+  const tripDays = estimatedDays(trip);
+  const mustSeeRatio = essentialCount / total;
   const neighborhoods = new Set(places.map((place) => place.neighborhood || place.city).filter(Boolean));
   const itineraryDays = trip.itinerary?.length ?? 0;
   const plannedStops = trip.itinerary?.reduce((sum, day) => sum + day.items.length, 0) ?? 0;
   const averageStops = itineraryDays ? plannedStops / itineraryDays : places.length / Math.max(1, estimatedDays(trip));
   const spreadKm = estimateSpreadKm(mappedPlaces);
+  const reservationRisk = estimateReservationRisk(places);
+  const transitComplexity = clamp((neighborhoods.size - Math.max(2, tripDays)) * 15 + Math.max(0, spreadKm - 10) * 2.5 + (mappedRatio < 0.7 ? 16 : 0));
 
   const overload = clamp((averageStops - 2.5) * 28);
   const pinDebt = clamp((1 - mappedRatio) * 100);
   const weatherRisk = clamp((0.45 - rainyRatio) * 170);
-  const fomoRisk = clamp((mustSeeRatio - 0.35) * 125);
+  const fomoRisk = places.length < 4 ? 0 : clamp((essentialCount - Math.max(1, tripDays)) * 18 + Math.max(0, mustSeeRatio - 0.5) * 55);
   const spreadRisk = clamp((neighborhoods.size - 2) * 18 + Math.max(0, spreadKm - 8) * 2);
-  const score = Math.round(clamp(overload * 0.33 + pinDebt * 0.2 + weatherRisk * 0.16 + fomoRisk * 0.16 + spreadRisk * 0.15));
+  const score = Math.round(clamp(overload * 0.25 + pinDebt * 0.18 + weatherRisk * 0.14 + fomoRisk * 0.13 + spreadRisk * 0.12 + reservationRisk * 0.08 + transitComplexity * 0.1));
 
   const worst = [
     { key: "overload", value: overload },
-    { key: "pinDebt", value: pinDebt },
+    { key: "mapReadiness", value: pinDebt },
     { key: "weatherRisk", value: weatherRisk },
     { key: "fomoRisk", value: fomoRisk },
     { key: "spreadRisk", value: spreadRisk },
+    { key: "reservationRisk", value: reservationRisk },
+    { key: "transitComplexity", value: transitComplexity },
   ].sort((a, b) => b.value - a.value)[0]?.key;
 
   const rescue = {
     overload: "Rescue move: make one low-priority stop a backup for each packed day.",
-    pinDebt: "Rescue move: pin unmapped saves before trusting the itinerary builder.",
-    weatherRisk: "Rescue move: add two indoor backups near your densest neighborhood.",
+    mapReadiness: "Rescue move: pin unmapped saves before trusting the itinerary builder.",
+    weatherRisk: `Rescue move: add ${Math.max(1, Math.ceil(tripDays / 3))} indoor backup${tripDays > 3 ? "s" : ""} near your densest neighborhood.`,
     fomoRisk: "Rescue move: choose one anchor must-see per day and let the rest orbit it.",
     spreadRisk: "Rescue move: split days by neighborhood instead of category.",
+    reservationRisk: "Rescue move: mark ticketed dinners, shows, and tours before you build the final day plan.",
+    transitComplexity: "Rescue move: make each day a walkable neighborhood loop before adding cross-town stops.",
   }[worst ?? "overload"];
 
   return {
@@ -147,39 +172,79 @@ function analyzeTripStress(trip: Trip, places: Place[]) {
         value: Math.round(overload),
         icon: <Zap />,
         note: averageStops >= 4 ? `${averageStops.toFixed(1)} stops per day is a lot.` : "Daily density looks humane.",
+        definition: "How packed each planned day feels after duration and travel time.",
+        action: "essentials",
+        actionLabel: "Thin busy days",
       },
       {
-        label: "Pin debt",
-        value: Math.round(pinDebt),
+        label: "Map readiness",
+        value: Math.round(100 - pinDebt),
         icon: <MapPinned />,
         note: `${mappedPlaces.length}/${places.length} places have coordinates.`,
+        definition: "How many saved places have enough map data for routing and clustering.",
+        action: "coordinates",
+        actionLabel: "Fix coordinates",
+        positive: true,
       },
       {
         label: "Rain risk",
         value: Math.round(weatherRisk),
         icon: <CloudRain />,
-        note: rainyRatio < 0.35 ? "You need more indoor fallbacks." : "There are enough weather backups.",
+        note: rainyRatio < 0.35 ? `You have ${indoorCount}; aim for at least ${Math.max(1, Math.ceil(tripDays / 3))} indoor backup${tripDays > 3 ? "s" : ""}.` : "There are enough weather backups.",
+        definition: "Whether rainy or low-energy days have indoor alternatives nearby.",
+        action: "indoor",
+        actionLabel: "Add indoor backups",
       },
       {
-        label: "FOMO load",
+        label: "Favorites pressure",
         value: Math.round(fomoRisk),
         icon: <AlertTriangle />,
-        note: mustSeeRatio > 0.45 ? "Too many places are marked essential." : "Priorities are nicely ranked.",
+        note: fomoRisk > 40 ? `${essentialCount} favorites or anchors may be too many for ${tripDays} day${tripDays === 1 ? "" : "s"}.` : "Priorities are nicely ranked.",
+        definition: "How many places are competing to be non-negotiable anchors.",
+        action: "essentials",
+        actionLabel: "Reduce essentials",
       },
       {
         label: "City spread",
         value: Math.round(spreadRisk),
         icon: <Compass />,
         note: neighborhoods.size > 2 ? `${neighborhoods.size} clusters can create backtracking.` : "Neighborhood spread is contained.",
+        definition: "How far apart the saved neighborhoods and mapped pins are.",
+        action: "neighborhoods",
+        actionLabel: "See clusters",
       },
       {
-        label: "Resilience",
-        value: Math.round(100 - score),
-        icon: <ShieldCheck />,
-        note: "How well the trip survives delays, weather, and tired feet.",
+        label: "Reservation risk",
+        value: Math.round(reservationRisk),
+        icon: <CalendarClock />,
+        note: reservationRisk > 35 ? "Likely booking-sensitive stops need confirmation." : "Few stops look reservation-sensitive.",
+        definition: "Places likely to need tickets, bookings, or timed entry.",
+        action: "reservations",
+        actionLabel: "Check bookings",
       },
-    ],
+      {
+        label: "Transit complexity",
+        value: Math.round(transitComplexity),
+        icon: <Route />,
+        note: transitComplexity > 45 ? "Cross-town clusters may make days fragile." : "The route shape is workable.",
+        definition: "A rough warning for far-apart clusters, missing pins, and backtracking.",
+        action: "transit",
+        actionLabel: "Make loops",
+      },
+    ] satisfies StressFactor[],
   };
+}
+
+function estimateReservationRisk(places: Place[]) {
+  if (!places.length) return 0;
+  const risky = places.filter((place) => {
+    const haystack = `${place.title} ${place.notes ?? ""} ${place.tags.join(" ")} ${place.category}`.toLowerCase();
+    return (
+      /reservation|booking|ticket|timed|show|tour|omakase|tasting|requires/.test(haystack) ||
+      place.category === "restaurant" && (place.bestTimeOfDay === "evening" || place.priority <= 2)
+    );
+  }).length;
+  return clamp((risky / places.length) * 100);
 }
 
 function estimatedDays(trip: Trip) {

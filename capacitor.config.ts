@@ -4,7 +4,6 @@ const config: CapacitorConfig = {
   appId: "app.nomadnote.travel",
   appName: "NomadNote",
   webDir: "out",
-  bundledWebRuntime: false,
   ios: {
     contentInset: "automatic",
     scrollEnabled: true,

@@ -32,7 +32,7 @@ Recommended repository settings:
 
 Suggested pinned-project blurb:
 
-> NomadNote is a local-first travel planner that does not just store places. Its Trip Stress Radar detects overload, missing pins, weather risk, FOMO load, and neighborhood spread so travelers can rescue unrealistic itineraries before the trip.
+> NomadNote is a local-first travel planner that does not just store places. Its Trip Stress Radar detects overload, map readiness, weather risk, favorites pressure, city spread, reservation risk, and transit complexity so travelers can rescue unrealistic itineraries before the trip.
 
 ## 2.1 Versioning
 
@@ -41,14 +41,14 @@ NomadNote uses semver-style project versions.
 Current version:
 
 ```text
-v1.1.0
+v1.2.0
 ```
 
 After a release-worthy update:
 
 ```bash
-git tag v1.1.0
-git push origin v1.1.0
+git tag v1.2.0
+git push origin v1.2.0
 ```
 
 Create a GitHub Release from the tag and paste the matching notes from `CHANGELOG.md`.
@@ -168,7 +168,7 @@ If the Vercel project is connected to GitHub, the normal update flow is:
 
 ```bash
 git add .
-git commit -m "Release v1.1 responsive polish"
+git commit -m "Release v1.2 actionable planning engine"
 git push origin main
 ```
 

@@ -42,32 +42,34 @@ nextjs typescript travel-planner local-first indexeddb pwa capacitor ios portfol
 
 Use the Vercel URL once deployed.
 
-## Suggested first release
+## Suggested current release
 
 Tag:
 
 ```text
-v1.1.0
+v1.2.0
 ```
 
 Release title:
 
 ```text
-NomadNote v1.1: Responsive local-first travel planner
+NomadNote v1.2: Actionable local-first travel planner
 ```
 
 Release notes:
 
 ```md
-Version 1.1 release with:
+Version 1.2 release with:
 
 - Local-first trip and place storage
 - Capture inbox for links, notes, and map URLs
 - MapLibre/OpenStreetMap map view
 - Heuristic itinerary builder
-- Trip Stress Radar
+- Actionable Trip Stress Radar with repair buttons
 - Packing list, budget view, import/export, command palette, dark mode
 - PWA and iOS packaging path with Capacitor
 - Responsive phone and iPad polish
+- Sample demo trip reset flow
+- Saved itinerary insights
 - In-app version history
 ```

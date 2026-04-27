@@ -4,7 +4,7 @@ Local-first travel planning for people who save too many places and need a trip 
 
 Designed and built by **Henrique Ribeiro**.
 
-Current version: **v1.1.0**
+Current version: **v1.2.0**
 
 NomadNote is a private, no-account travel planner with a unique **Trip Stress Radar**. It does not just store places or generate an itinerary. It warns when the plan is becoming overloaded, under-pinned, weather-fragile, FOMO-heavy, or spread across too many neighborhoods.
 
@@ -23,19 +23,20 @@ NomadNote is built around **Anti-Itinerary Mode**:
 Trip Stress Radar scores a trip from `0` to `100` using:
 
 - **Overload**: too many stops per day
-- **Pin debt**: saved places without coordinates
+- **Map readiness**: saved places with enough coordinates for routing
 - **Rain risk**: not enough indoor or flexible backups
-- **FOMO load**: too many places marked essential
+- **Favorites pressure**: too many places competing as anchors
 - **City spread**: too many neighborhoods or long-distance clusters
-- **Resilience**: how well the plan survives delays, tired feet, and weather
+- **Reservation risk**: places likely to need bookings, tickets, or timed entry
+- **Transit complexity**: far-apart clusters and backtracking risk
 
-It then gives one clear rescue move, such as:
+It then gives concrete radar actions, such as:
 
-- Move one low-priority stop into backups
+- Thin busy days
 - Add indoor fallbacks near the densest neighborhood
-- Pin unmapped saves before trusting itinerary generation
+- Fix coordinates before trusting itinerary generation
 - Choose one anchor must-see per day
-- Split days by neighborhood instead of category
+- Build walkable neighborhood loops
 
 This is the core reason someone would use NomadNote over a generic notes app, spreadsheet, Google Maps list, or itinerary generator.
 
@@ -65,7 +66,7 @@ See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for capture instructions and App 
 - Place attributes: priority, tags, category, price, best time, indoor/outdoor, dietary tags, travel flags, coordinates, notes, and source links
 - MapLibre map with OpenStreetMap tiles
 - Smart itinerary builder with proximity clustering and transparent explanations
-- Trip Stress Radar and overload detection
+- Actionable Trip Stress Radar with metric repair buttons
 - Rainy-day alternatives
 - Random spot picker
 - Neighborhood grouping
@@ -205,6 +206,6 @@ Included legal/support pages:
 
 ## Status
 
-Portfolio-ready MVP, currently at v1.1.0. The next strongest improvements would be production screenshots, a custom 1024x1024 app icon, a real marketing landing section, and TestFlight validation on a physical iPhone.
+Portfolio-ready MVP, currently at v1.2.0. The next strongest improvements would be production screenshots, a custom 1024x1024 app icon, and TestFlight validation on a physical iPhone.
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.

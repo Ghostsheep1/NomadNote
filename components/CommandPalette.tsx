@@ -3,8 +3,8 @@ import React, { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import {
-  Map, Plus, Settings, Search, Wand2, Download, Moon, Sun,
-  Archive, Globe, Star, Package, Trash2, Shuffle,
+  Map, Plus, Settings, Search, Download, Moon, Sun, Monitor,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui";
@@ -74,14 +74,26 @@ export function CommandPalette() {
 
             {/* Quick actions */}
             <Command.Group heading="Actions">
-              <CmdItem icon={<Plus />} onSelect={() => run(() => useUIStore.getState().openCapture())}>
-                Add a place
+              <CmdItem icon={<Plus />} onSelect={() => run(() => window.dispatchEvent(new CustomEvent("nomadnote:open-actions")))}>
+                Add a place...
               </CmdItem>
               <CmdItem
-                icon={settings.theme === "dark" ? <Sun /> : <Moon />}
-                onSelect={() => run(() => updateSettings({ theme: settings.theme === "dark" ? "light" : "dark" }))}
+                icon={<Sun />}
+                onSelect={() => run(() => updateSettings({ theme: "light" }))}
               >
-                Toggle {settings.theme === "dark" ? "light" : "dark"} mode
+                Theme: light {settings.theme === "light" ? "✓" : ""}
+              </CmdItem>
+              <CmdItem
+                icon={<Moon />}
+                onSelect={() => run(() => updateSettings({ theme: "dark" }))}
+              >
+                Theme: dark {settings.theme === "dark" ? "✓" : ""}
+              </CmdItem>
+              <CmdItem
+                icon={<Monitor />}
+                onSelect={() => run(() => updateSettings({ theme: "system" }))}
+              >
+                Theme: system {settings.theme === "system" ? "✓" : ""}
               </CmdItem>
             </Command.Group>
 

@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.1.0";
+export const APP_VERSION = "1.2.0";
 
 export const CHANGELOG = [
+  {
+    version: "1.2.0",
+    title: "Actionable planning engine",
+    date: "2026-04-27",
+    changes: [
+      "Turned Trip Stress Radar into a more actionable decision panel.",
+      "Added explicit trip selection before adding places from global actions.",
+      "Added load/reset demo flow from the home screen.",
+      "Improved packing list affordances and progress clarity.",
+      "Fixed itinerary insights so saved itineraries show useful feedback.",
+    ],
+  },
   {
     version: "1.1.0",
     title: "Responsive polish",

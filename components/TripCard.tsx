@@ -88,6 +88,8 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
                     variant="ghost"
                     className="flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover/card:opacity-100 transition-opacity"
                     onClick={(e) => e.preventDefault()}
+                    aria-label="Trip actions"
+                    title="Trip actions"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </Button>
@@ -138,8 +140,8 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
 
             <div className="mt-4 grid grid-cols-3 gap-2">
               <MiniStat icon={<CheckCircle2 />} label="Visited" value={`${progress}%`} />
-              <MiniStat icon={<Heart />} label="Loved" value={favoriteCount} />
-              <MiniStat icon={<MapPin />} label="Pinned" value={`${mappedCount}/${placeCount || 0}`} />
+              <MiniStat icon={<Heart />} label="Favorites" value={favoriteCount} />
+              <MiniStat icon={<MapPin />} label="Map-ready" value={`${mappedCount}/${placeCount || 0}`} />
             </div>
 
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">

@@ -25,18 +25,24 @@ const schema = z.object({ input: z.string().min(1, "Enter a URL, place name, or 
 interface CaptureInboxProps {
   tripId?: string;
   onClose?: () => void;
+  initialInput?: string;
 }
 
-export function CaptureInbox({ tripId, onClose }: CaptureInboxProps) {
+export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProps) {
   const [candidates, setCandidates] = useState<ExtractedCandidate[]>([]);
   const [geocoding, setGeocoding] = useState<string | null>(null);
   const { processInput } = useCaptureStore();
   const { createPlace } = usePlacesStore();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, setValue, formState: { isSubmitting } } = useForm({
     resolver: zodResolver(schema),
+    defaultValues: { input: initialInput ?? "" },
   });
+
+  React.useEffect(() => {
+    if (initialInput) setValue("input", initialInput);
+  }, [initialInput, setValue]);
 
   const onSubmit = handleSubmit(async ({ input }) => {
     const results = await processInput(input, tripId);
@@ -54,6 +60,7 @@ export function CaptureInbox({ tripId, onClose }: CaptureInboxProps) {
 
     if (!lat || !lng) {
       setGeocoding(c.id);
+      toast.info("Looking up details...");
       const results = await geocodeQuery(c.title ?? c.rawInput);
       if (results.length) {
         lat = results[0].lat;
@@ -61,9 +68,9 @@ export function CaptureInbox({ tripId, onClose }: CaptureInboxProps) {
         city = city ?? results[0].city;
         country = country ?? results[0].country;
         neighborhood = neighborhood ?? results[0].neighborhood;
-        toast.success("Location found via geocoding");
+        toast.success(`Matched: ${results[0].displayName ?? c.title ?? "place"}`);
       } else {
-        toast.warning("Couldn't find coordinates — saved without location");
+        toast.warning("Couldn't match automatically. Save with manual details.");
       }
       setGeocoding(null);
     }
@@ -92,7 +99,7 @@ export function CaptureInbox({ tripId, onClose }: CaptureInboxProps) {
   const confidenceBadge = (c: "high" | "medium" | "low") => ({
     high: <Badge variant="success" className="text-xs">High confidence</Badge>,
     medium: <Badge variant="warning" className="text-xs">Review needed</Badge>,
-    low: <Badge variant="secondary" className="text-xs">Manual required</Badge>,
+    low: <Badge variant="secondary" className="text-xs">Needs details</Badge>,
   })[c];
 
   return (
@@ -128,7 +135,7 @@ export function CaptureInbox({ tripId, onClose }: CaptureInboxProps) {
           />
         </div>
         <p className="text-xs text-muted-foreground">
-          Supports Google Maps, Apple Maps, TikTok, Instagram, YouTube, blog links, addresses, coordinates
+          Tip: paste multiple links, one per line. Supports Google Maps, Apple Maps, TikTok, Instagram, YouTube, blog links, addresses, coordinates.
         </p>
       </form>
 

@@ -22,6 +22,39 @@ export const DEMO_TRIP_TOKYO: Trip = {
   notes: "Check cherry blossom forecast. Get IC card at airport.",
   archived: false,
   itineraryMode: "balanced",
+  itinerary: [
+    {
+      date: "2025-04-10",
+      dayNumber: 1,
+      theme: "Asakusa and food market warmup",
+      notes: "Low-friction first day with one classic anchor and a food stop.",
+      items: [
+        { id: "demo-it-tokyo-1-1", placeId: "tp-sensoji", startTime: "09:00", endTime: "10:30", duration: 90, locked: true, travelTimeFromPrevious: 0, order: 0 },
+        { id: "demo-it-tokyo-1-2", placeId: "tp-tsukiji", startTime: "12:00", endTime: "13:30", duration: 90, locked: false, travelTimeFromPrevious: 25, order: 1 },
+      ],
+    },
+    {
+      date: "2025-04-11",
+      dayNumber: 2,
+      theme: "Shibuya, Harajuku, and Meiji loop",
+      notes: "Walkable west-side cluster with a clear rainy backup nearby.",
+      items: [
+        { id: "demo-it-tokyo-2-1", placeId: "tp-meiji", startTime: "10:00", endTime: "11:30", duration: 90, locked: false, travelTimeFromPrevious: 0, order: 0 },
+        { id: "demo-it-tokyo-2-2", placeId: "tp-harajuku", startTime: "12:00", endTime: "13:15", duration: 75, locked: false, travelTimeFromPrevious: 12, order: 1 },
+        { id: "demo-it-tokyo-2-3", placeId: "tp-shibuya", startTime: "15:00", endTime: "16:30", duration: 90, locked: true, travelTimeFromPrevious: 18, order: 2 },
+      ],
+    },
+    {
+      date: "2025-04-12",
+      dayNumber: 3,
+      theme: "Rain-friendly art day",
+      notes: "Indoor anchor day for weather resilience.",
+      items: [
+        { id: "demo-it-tokyo-3-1", placeId: "tp-teamlab", startTime: "10:30", endTime: "12:30", duration: 120, locked: true, travelTimeFromPrevious: 0, order: 0 },
+        { id: "demo-it-tokyo-3-2", placeId: "tp-ichiran", startTime: "18:30", endTime: "19:30", duration: 60, locked: false, travelTimeFromPrevious: 28, order: 1 },
+      ],
+    },
+  ],
   currency: "JPY",
   createdAt: TS - 7 * DAY,
   updatedAt: TS - 1 * DAY,
@@ -287,6 +320,28 @@ export const DEMO_TRIP_LISBON: Trip = {
   notes: "Get a Viva Viagem metro card. Trams are unreliable but tram 28 is iconic.",
   archived: false,
   itineraryMode: "slow",
+  itinerary: [
+    {
+      date: "2025-05-23",
+      dayNumber: 1,
+      theme: "Belém classics",
+      notes: "Easy arrival day anchored around pastries and monuments.",
+      items: [
+        { id: "demo-it-lisbon-1-1", placeId: "lp-belem", startTime: "09:30", endTime: "10:15", duration: 45, locked: true, travelTimeFromPrevious: 0, order: 0 },
+        { id: "demo-it-lisbon-1-2", placeId: "lp-jeronimos", startTime: "10:30", endTime: "12:00", duration: 90, locked: false, travelTimeFromPrevious: 5, order: 1 },
+      ],
+    },
+    {
+      date: "2025-05-24",
+      dayNumber: 2,
+      theme: "Alfama evening",
+      notes: "Slow hill day with fado saved as the evening anchor.",
+      items: [
+        { id: "demo-it-lisbon-2-1", placeId: "lp-alfama", startTime: "14:00", endTime: "16:00", duration: 120, locked: false, travelTimeFromPrevious: 0, order: 0 },
+        { id: "demo-it-lisbon-2-2", placeId: "lp-fado", startTime: "20:00", endTime: "22:00", duration: 120, locked: true, travelTimeFromPrevious: 12, order: 1 },
+      ],
+    },
+  ],
   currency: "EUR",
   createdAt: TS - 3 * DAY,
   updatedAt: TS,
@@ -491,6 +546,23 @@ export async function seedDemoData(): Promise<void> {
   if (exists) return; // already seeded
 
   await db.transaction("rw", [db.trips, db.places, db.collections, db.packingItems], async () => {
+    await db.trips.bulkPut([DEMO_TRIP_TOKYO, DEMO_TRIP_LISBON]);
+    await db.places.bulkPut([...DEMO_PLACES_TOKYO, ...DEMO_PLACES_LISBON]);
+    await db.collections.bulkPut([...DEMO_COLLECTIONS_TOKYO, ...DEMO_COLLECTIONS_LISBON]);
+    await db.packingItems.bulkPut(DEMO_PACKING_ITEMS);
+  });
+}
+
+export async function resetDemoData(): Promise<void> {
+  const { db } = await import("./db");
+  const demoTripIds = ["demo-tokyo", "demo-lisbon"];
+
+  await db.transaction("rw", [db.trips, db.places, db.collections, db.packingItems], async () => {
+    await Promise.all(demoTripIds.map((tripId) => db.trips.delete(tripId)));
+    await Promise.all(demoTripIds.map((tripId) => db.places.where("tripId").equals(tripId).delete()));
+    await Promise.all(demoTripIds.map((tripId) => db.collections.where("tripId").equals(tripId).delete()));
+    await Promise.all(demoTripIds.map((tripId) => db.packingItems.where("tripId").equals(tripId).delete()));
+
     await db.trips.bulkPut([DEMO_TRIP_TOKYO, DEMO_TRIP_LISBON]);
     await db.places.bulkPut([...DEMO_PLACES_TOKYO, ...DEMO_PLACES_LISBON]);
     await db.collections.bulkPut([...DEMO_COLLECTIONS_TOKYO, ...DEMO_COLLECTIONS_LISBON]);
