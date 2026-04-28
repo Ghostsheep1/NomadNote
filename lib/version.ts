@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.3.2";
+export const APP_VERSION = "1.3.3";
 
 export const CHANGELOG = [
+  {
+    version: "1.3.3",
+    title: "Europe importer reliability",
+    date: "2026-04-28",
+    changes: [
+      "Added a Europe 2026 local place guide for major cities, landmarks, stations, hotels, and restaurants.",
+      "Added city-context chaining so nearby batch lines resolve inside the active itinerary city.",
+      "Improved typo, alias, diacritics, and short-query handling for places like Hallstatt, Vienna, Széchenyi Baths, and Praha-Holešovice.",
+      "Hardened confidence scoring so unrelated countries cannot be marked high confidence.",
+      "Grouped Add Place review results by inferred city with ready/review counts.",
+    ],
+  },
   {
     version: "1.3.2",
     title: "Add Place UX polish",

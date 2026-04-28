@@ -1,5 +1,36 @@
 # Changelog
 
+## v1.3.3 - Europe Importer Reliability
+
+Released: 2026-04-28
+
+### Added
+
+- Europe 2026 local place guide covering Munich, Budapest, Prague, Vienna, Hallstatt, Salzburg, Ljubljana, Bled, Split, Hvar, Plitvice, Mostar, Kotor, Durmitor, Budva, Dubrovnik, and Athens.
+- City-context chaining for batch import, so lines after `Munich` are searched as Munich places until the next city context appears.
+- Layered geocoder strategy: known-place lookup, structured city/country search, country search, then raw query fallback.
+- Photon autocomplete support with request caching, plus Nominatim structured confirmation fallback.
+- Tests for typo aliases, diacritics, city context, ranking, and confidence scoring.
+
+### Improved
+
+- Short queries like `vie`, `bud`, `pra`, `salz`, `bled`, and `hvar` rank the intended Europe itinerary places first.
+- Critical aliases now resolve cleanly, including `halstatt`, `Hofbräuhaus`, `Széchenyi Baths`, `Praha-Holešovice`, `Figlmüller`, and `Lake Bled`.
+- Confidence scoring now requires country/city context alignment before showing high confidence.
+- Add Place review results are grouped by inferred city with ready/review counts.
+
+### Fixed
+
+- Prevented wrong high-confidence matches like Neues Rathaus outside Munich or K+K Hotel Opera outside Budapest.
+- Replaced “No match yet” style dead-end copy with review guidance when a line needs more context.
+
+### Validation
+
+- `npm run build`
+- `npm run build:static`
+- `npm test -- --runInBand`
+- `npm audit --audit-level=high`
+
 ## v1.3.2 - Add Place UX Polish
 
 Released: 2026-04-27

@@ -9,9 +9,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { extractFromInput, geocodeQuery, inferCategory, type GeocodingResult, type GeocodeOptions } from "@/features/capture/extractors";
+import { extractFromInput, geocodeQuery, inferCategory, photonQuery, type GeocodingResult, type GeocodeOptions } from "@/features/capture/extractors";
+import {
+  assessConfidence,
+  buildGeocodeOptions,
+  buildSearchQueries,
+  contextForCurrentLine,
+  contextLabel,
+  type CityContext,
+  detectCityContext,
+  EUROPE_2026_COUNTRY_CODES,
+  EUROPE_2026_VIEWBOX,
+  inferBatchCityContext,
+  knownTravelPlaceSuggestions,
+  lookupKnownTravelPlace,
+  preprocessPlaceInput,
+  rankGeocoderResults,
+  resultMatchesCity,
+  searchKey,
+} from "@/features/capture/placeResolver";
 import type { ExtractedCandidate, Place, Trip } from "@/lib/types";
-import { CATEGORY_ICONS, haversineKm, id as genId } from "@/lib/utils";
+import { CATEGORY_ICONS, id as genId } from "@/lib/utils";
 import { usePlacesStore } from "@/store/places";
 import { useTripsStore } from "@/store/trips";
 
@@ -32,6 +50,8 @@ interface ReviewRow {
   editing?: boolean;
   loading?: boolean;
   fuzzyMatched?: boolean;
+  context?: CityContext;
+  groupLabel: string;
 }
 
 interface CaptureInboxProps {
@@ -39,32 +59,6 @@ interface CaptureInboxProps {
   onClose?: () => void;
   initialInput?: string;
 }
-
-const EUROPE_COUNTRY_CODES = [
-  "AL", "AD", "AT", "BE", "BA", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU",
-  "IS", "IE", "IT", "LV", "LI", "LT", "LU", "MT", "MD", "MC", "ME", "NL", "MK", "NO", "PL", "PT",
-  "RO", "SM", "RS", "SK", "SI", "ES", "SE", "CH", "TR", "UA", "GB", "VA",
-];
-
-const EUROPE_VIEWBOX: [number, number, number, number] = [-25, 34, 45, 72];
-const CENTRAL_EUROPE_VIEWBOX: [number, number, number, number] = [5, 42, 31, 53];
-const CENTRAL_EUROPE_CODES = ["AT", "HU", "CZ", "SI", "HR", "BA", "ME", "GR", "DE"];
-const CENTRAL_EUROPE_HINTS = [
-  "europe", "austria", "vienna", "hallstatt", "hungary", "budapest", "czech", "czechia", "prague",
-  "slovenia", "croatia", "bosnia", "montenegro", "greece", "germany", "munich", "berlin",
-];
-
-const FUZZY_CORRECTIONS: Record<string, { query: string; countryCodes: string[]; label: string }> = {
-  halstatt: { query: "Hallstatt Austria", countryCodes: ["at"], label: "Hallstatt, Austria" },
-  hallstat: { query: "Hallstatt Austria", countryCodes: ["at"], label: "Hallstatt, Austria" },
-  viena: { query: "Vienna Austria", countryCodes: ["at"], label: "Vienna, Austria" },
-  wien: { query: "Vienna Austria", countryCodes: ["at"], label: "Vienna, Austria" },
-  vie: { query: "Vienna Austria", countryCodes: ["at"], label: "Vienna, Austria" },
-  budapesht: { query: "Budapest Hungary", countryCodes: ["hu"], label: "Budapest, Hungary" },
-  budapeste: { query: "Budapest Hungary", countryCodes: ["hu"], label: "Budapest, Hungary" },
-  praga: { query: "Prague Czechia", countryCodes: ["cz"], label: "Prague, Czechia" },
-  prag: { query: "Prague Czechia", countryCodes: ["cz"], label: "Prague, Czechia" },
-};
 
 export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProps) {
   const { createPlace, places } = usePlacesStore();
@@ -89,8 +83,13 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
   const geocodeOptions = useMemo(() => buildGeocodeOptions(tripPlaces, trip), [tripPlaces, trip]);
   const lineCount = splitLines(mode === "paste" ? input : singleInput).length;
   const activeQuery = mode === "paste" ? currentLineAt(input, textareaCursor).trim() : singleInput.trim();
+  const activeContext = useMemo(
+    () => mode === "paste" ? contextForCurrentLine(input, textareaCursor, trip) : detectCityContext(singleInput) ?? contextForCurrentLine(input, textareaCursor, trip),
+    [input, mode, singleInput, textareaCursor, trip]
+  );
   const validCount = rows.filter((row) => row.status === "valid").length;
   const reviewCount = rows.filter((row) => row.status !== "valid").length;
+  const groupedRows = useMemo(() => groupRows(rows), [rows]);
 
   useEffect(() => {
     if (initialInput) {
@@ -108,14 +107,12 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
 
     const timer = window.setTimeout(async () => {
       setSuggestionLoading(true);
-      const fuzzy = getFuzzyCorrection(query);
-      const searchQuery = fuzzy?.query ?? query;
-      const searchOptions = fuzzy
-        ? { ...geocodeOptions, viewbox: CENTRAL_EUROPE_VIEWBOX, countryCodes: fuzzy.countryCodes, limit: 7 }
-        : { ...geocodeOptions, limit: 7 };
-      const found = await geocodeQuery(searchQuery, searchOptions);
-      const preferred = fuzzy?.countryCodes.map((code) => code.toUpperCase()) ?? geocodeOptions.preferredCountryCodes;
-      setSuggestions(rankResults(query, found, geocodeOptions.near, preferred).slice(0, 5));
+      const known = knownTravelPlaceSuggestions(query, activeContext, 5);
+      const search = preprocessPlaceInput(query).aliasQuery ?? query;
+      const photon = await photonQuery(search, { ...geocodeOptions, limit: 8, viewbox: EUROPE_2026_VIEWBOX });
+      const fallback = photon.length ? [] : await geocodeQuery(search, { ...geocodeOptions, limit: 8 });
+      const ranked = rankGeocoderResults(query, uniqueResults([...known, ...photon, ...fallback]), activeContext, geocodeOptions);
+      setSuggestions(ranked.slice(0, 5));
       setSuggestionIndex(0);
       setSuggestionLoading(false);
     }, 300);
@@ -141,9 +138,10 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
     setParsing(true);
     setSuccess(false);
     const seen = new Set<string>();
+    const contexts = inferBatchCityContext(lines, trip);
     const resolved: ReviewRow[] = [];
-    for (const line of lines) {
-      const row = await resolveLine(line, geocodeOptions, tripPlaces, seen);
+    for (const [index, line] of lines.entries()) {
+      const row = await resolveLine(line, geocodeOptions, tripPlaces, seen, contexts[index]);
       if (row.selected) seen.add(placeKey(row.selected));
       resolved.push(row);
     }
@@ -192,7 +190,7 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
     const row = rows.find((item) => item.id === rowId);
     if (!row) return;
     setRows((prev) => prev.map((item) => item.id === rowId ? { ...item, loading: true } : item));
-    const next = await resolveLine(row.query, geocodeOptions, tripPlaces, new Set(rows.filter((item) => item.id !== rowId && item.selected).map((item) => placeKey(item.selected!))));
+    const next = await resolveLine(row.query, geocodeOptions, tripPlaces, new Set(rows.filter((item) => item.id !== rowId && item.selected).map((item) => placeKey(item.selected!))), row.context);
     setRows((prev) => prev.map((item) => item.id === rowId ? { ...next, id: rowId, input: row.input, editing: false, loading: false } : item));
   };
 
@@ -349,7 +347,7 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
           <div className="flex flex-col gap-3 border-b border-border p-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold">Review before adding</p>
-              <p className="text-xs text-muted-foreground">{validCount} ready · {reviewCount} need review</p>
+              <p className="text-xs text-muted-foreground">{validCount} ready · {reviewCount} need review · grouped by city</p>
             </div>
             <div className="flex gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => setRows([])}>Cancel</Button>
@@ -359,16 +357,26 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
               </Button>
             </div>
           </div>
-          <div className="max-h-[52vh] divide-y divide-border overflow-y-auto">
-            {rows.map((row) => (
-              <ReviewRowCard
-                key={row.id}
-                row={row}
-                onQueryChange={(query) => updateRowQuery(row.id, query)}
-                onSearch={() => searchRow(row.id)}
-                onChoose={(option, confirmed) => chooseOption(row.id, option, confirmed)}
-                onReject={() => rejectRow(row.id)}
-              />
+          <div className="max-h-[52vh] overflow-y-auto">
+            {groupedRows.map((group) => (
+              <section key={group.label} className="border-b border-border last:border-b-0">
+                <div className="sticky top-0 z-10 flex items-center justify-between bg-muted/80 px-3 py-2 backdrop-blur">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.label}</p>
+                  <p className="text-xs text-muted-foreground">{group.ready} ready · {group.review} needs review</p>
+                </div>
+                <div className="divide-y divide-border">
+                  {group.rows.map((row) => (
+                    <ReviewRowCard
+                      key={row.id}
+                      row={row}
+                      onQueryChange={(query) => updateRowQuery(row.id, query)}
+                      onSearch={() => searchRow(row.id)}
+                      onChoose={(option, confirmed) => chooseOption(row.id, option, confirmed)}
+                      onReject={() => rejectRow(row.id)}
+                    />
+                  ))}
+                </div>
+              </section>
             ))}
           </div>
         </div>
@@ -416,7 +424,7 @@ function ReviewRowCard({
               <span className="text-muted-foreground"> → {locationLine(row.selected)}</span>
             </div>
           ) : (
-            <p className="mt-1 text-sm text-muted-foreground">No match yet.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Needs review — add city/country or choose a suggestion.</p>
           )}
 
           <p className="mt-1 text-xs leading-5 text-muted-foreground">{row.message}</p>
@@ -517,7 +525,7 @@ function StatusIcon({ status }: { status: ReviewStatus }) {
   return <span className={`${className} bg-accent/20 text-accent-foreground`}>?</span>;
 }
 
-async function resolveLine(line: string, options: GeocodeOptions, existing: Place[], seen: Set<string>): Promise<ReviewRow> {
+async function resolveLine(line: string, options: GeocodeOptions, existing: Place[], seen: Set<string>, context?: CityContext): Promise<ReviewRow> {
   const id = genId();
   const query = line.trim();
   try {
@@ -536,36 +544,73 @@ async function resolveLine(line: string, options: GeocodeOptions, existing: Plac
         type: "pin",
         importance: 1,
       };
-      return buildRow(id, line, query, [direct], direct, "high", "Coordinates or map link parsed directly.", first.sourceUrl, first.sourceType, existing, seen);
+      return buildRow(id, line, query, [direct], direct, "high", "Coordinates or map link parsed directly.", first.sourceUrl, first.sourceType, existing, seen, undefined, false, context);
     }
 
     const search = first?.title && first.title !== query ? first.title : query;
-    const fuzzy = getFuzzyCorrection(search);
-    const searchQuery = fuzzy?.query ?? search;
-    const searchOptions = fuzzy
-      ? { ...options, viewbox: CENTRAL_EUROPE_VIEWBOX, countryCodes: fuzzy.countryCodes, limit: 7 }
-      : { ...options, limit: 7 };
-    const preferred = fuzzy?.countryCodes.map((code) => code.toUpperCase()) ?? options.preferredCountryCodes;
-    const found = rankResults(search, await geocodeQuery(searchQuery, searchOptions), options.near, preferred);
-    if (!found.length) {
-      return { id, input: line, query, status: "error", options: [], confidence: "low", message: "No match found. Edit this line and search again.", sourceUrl: first?.sourceUrl, sourceType: first?.sourceType };
+    const preprocessed = preprocessPlaceInput(search);
+    const known = lookupKnownTravelPlace(search, context);
+    if (known) {
+      return buildRow(
+        id,
+        line,
+        preprocessed.aliasQuery ?? search,
+        [known],
+        known,
+        "high",
+        "Matched from the Europe 2026 travel guide.",
+        first?.sourceUrl,
+        first?.sourceType,
+        existing,
+        seen,
+        undefined,
+        Boolean(preprocessed.aliasQuery),
+        context
+      );
     }
 
-    const selected = found[0];
-    const confidence = confidenceFor(search, selected, found, options.near, preferred);
-    const typo = normalized(search) !== normalized(selected.name ?? primaryDisplayName(selected));
-    const fuzzyMatched = Boolean(fuzzy);
-    const status: ReviewStatus = confidence === "high" && !fuzzyMatched ? "valid" : "needs_review";
-    const message = fuzzyMatched
-      ? `Did you mean ${fuzzy!.label}?`
-      : confidence === "high"
+    const found: GeocodingResult[] = [];
+    for (const searchQuery of buildSearchQueries(search, context).slice(0, 4)) {
+      const next = await geocodeQuery(searchQuery, {
+        ...options,
+        limit: 7,
+        countryCodes: context ? [context.countryCode.toLowerCase()] : options.countryCodes,
+      });
+      found.push(...next);
+      if (next.some((result) => !context || (result.countryCode === context.countryCode && resultMatchesCity(result, context)))) break;
+    }
+    const ranked = rankGeocoderResults(search, uniqueResults(found), context, options);
+    const foundKnown = knownTravelPlaceSuggestions(search, context, 3);
+    const all = rankGeocoderResults(search, uniqueResults([...foundKnown, ...ranked]), context, options);
+    if (!all.length) {
+      return {
+        id,
+        input: line,
+        query,
+        status: "error",
+        options: [],
+        confidence: "low",
+        message: "Needs review — add city/country or choose a suggestion.",
+        sourceUrl: first?.sourceUrl,
+        sourceType: first?.sourceType,
+        context,
+        groupLabel: contextLabel(context),
+      };
+    }
+
+    const selected = all[0];
+    const confidence = assessConfidence(search, selected, all, context, options);
+    const typo = searchKey(search) !== searchKey(selected.name ?? primaryDisplayName(selected));
+    const fuzzyMatched = Boolean(preprocessed.aliasQuery) || typo;
+    const status: ReviewStatus = confidence === "high" ? "valid" : "needs_review";
+    const message = confidence === "high"
         ? "Matched automatically."
         : typo
           ? `Did you mean ${normalizePlaceName(selected.name ?? primaryDisplayName(selected))}?`
-          : "Ambiguous match. Choose the correct result.";
-    return buildRow(id, line, query, found, selected, confidence, message, first?.sourceUrl, first?.sourceType, existing, seen, status, fuzzyMatched);
+          : "Needs review — add city/country or choose a suggestion.";
+    return buildRow(id, line, preprocessed.aliasQuery ?? query, all, selected, confidence, message, first?.sourceUrl, first?.sourceType, existing, seen, status, fuzzyMatched, context);
   } catch {
-    return { id, input: line, query, status: "error", options: [], confidence: "low", message: "Search failed. Try again or edit manually." };
+    return { id, input: line, query, status: "error", options: [], confidence: "low", message: "Search failed. Try again or edit manually.", context, groupLabel: contextLabel(context) };
   }
 }
 
@@ -582,7 +627,8 @@ function buildRow(
   existing: Place[],
   seen: Set<string>,
   fallbackStatus?: ReviewStatus,
-  fuzzyMatched = false
+  fuzzyMatched = false,
+  context?: CityContext
 ): ReviewRow {
   const duplicate = isDuplicate(selected, existing) || seen.has(placeKey(selected));
   return {
@@ -595,71 +641,11 @@ function buildRow(
     sourceUrl,
     sourceType,
     status: duplicate ? "duplicate" : fallbackStatus ?? (confidence === "high" ? "valid" : "needs_review"),
-    message: duplicate ? "Already saved in this trip, so it will not be added again." : message,
+    message: duplicate ? "Already in trip." : message,
     fuzzyMatched,
+    context,
+    groupLabel: contextLabel(context) || contextLabel(detectCityContext(selected.city ?? "")),
   };
-}
-
-function buildGeocodeOptions(places: Place[], trip?: Trip | null): GeocodeOptions {
-  const withCoords = places.filter((place) => typeof place.latitude === "number" && typeof place.longitude === "number");
-  const countryCodes = Array.from(new Set(places.map(countryToCode).filter(Boolean))) as string[];
-  const tripText = normalized([trip?.name, trip?.description, trip?.notes, trip?.timezone].filter(Boolean).join(" "));
-  const centralEuropeish = countryCodes.some((code) => CENTRAL_EUROPE_CODES.includes(code)) || CENTRAL_EUROPE_HINTS.some((hint) => tripText.includes(hint));
-  const europeish = centralEuropeish || countryCodes.some((code) => EUROPE_COUNTRY_CODES.includes(code));
-  const near = withCoords.length
-    ? {
-        lat: withCoords.reduce((sum, place) => sum + place.latitude!, 0) / withCoords.length,
-        lng: withCoords.reduce((sum, place) => sum + place.longitude!, 0) / withCoords.length,
-      }
-    : undefined;
-  return {
-    limit: 6,
-    near,
-    viewbox: centralEuropeish ? CENTRAL_EUROPE_VIEWBOX : europeish ? EUROPE_VIEWBOX : undefined,
-    countryCodes: !centralEuropeish && countryCodes.length && countryCodes.length <= 3 ? countryCodes.map((code) => code.toLowerCase()) : undefined,
-    preferredCountryCodes: centralEuropeish
-      ? [...new Set([...countryCodes, ...CENTRAL_EUROPE_CODES])]
-      : countryCodes.length
-        ? countryCodes
-        : undefined,
-  };
-}
-
-function rankResults(query: string, results: GeocodingResult[], near?: { lat: number; lng: number }, preferredCountryCodes?: string[]) {
-  return [...results].sort((a, b) => scoreResult(query, b, near, preferredCountryCodes) - scoreResult(query, a, near, preferredCountryCodes));
-}
-
-function scoreResult(query: string, result: GeocodingResult, near?: { lat: number; lng: number }, preferredCountryCodes?: string[]) {
-  const name = result.name ?? primaryDisplayName(result);
-  const distance = levenshtein.get(normalized(query), normalized(name));
-  const maxLen = Math.max(normalized(query).length, normalized(name).length, 1);
-  const fuzzy = 1 - distance / maxLen;
-  const importance = result.importance ?? 0.3;
-  const nearBonus = near ? Math.max(0, 1 - haversineKm(near.lat, near.lng, result.lat, result.lng) / 1200) * 0.15 : 0;
-  const countryBonus = preferredCountryCodes?.includes(result.countryCode ?? "") ? 0.22 : 0;
-  const centralBonus = CENTRAL_EUROPE_CODES.includes(result.countryCode ?? "") ? 0.08 : 0;
-  const exactPrefixBonus = normalized(name).startsWith(normalized(query)) ? 0.18 : 0;
-  return fuzzy * 0.58 + importance * 0.22 + nearBonus + countryBonus + centralBonus + exactPrefixBonus;
-}
-
-function confidenceFor(query: string, selected: GeocodingResult, options: GeocodingResult[], near?: { lat: number; lng: number }, preferredCountryCodes?: string[]): "high" | "medium" | "low" {
-  const score = scoreResult(query, selected, near, preferredCountryCodes);
-  const second = options[1] ? scoreResult(query, options[1], near, preferredCountryCodes) : 0;
-  if (score > 0.82 && score - second > 0.08) return "high";
-  if (score > 0.58) return "medium";
-  return "low";
-}
-
-function getFuzzyCorrection(query: string) {
-  const key = normalized(query);
-  if (FUZZY_CORRECTIONS[key]) return FUZZY_CORRECTIONS[key];
-  if (key.length < 4) return undefined;
-  const best = Object.entries(FUZZY_CORRECTIONS)
-    .map(([candidate, correction]) => ({ correction, distance: levenshtein.get(key, candidate), candidate }))
-    .sort((a, b) => a.distance - b.distance)[0];
-  if (!best) return undefined;
-  const maxDistance = key.length <= 5 ? 1 : 2;
-  return best.distance <= maxDistance ? best.correction : undefined;
 }
 
 function fuzzyConfidence(query: string, suggestion: GeocodingResult) {
@@ -667,6 +653,38 @@ function fuzzyConfidence(query: string, suggestion: GeocodingResult) {
   const search = normalized(query);
   if (!search || name === search || name.startsWith(search)) return "exact";
   return levenshtein.get(search, name) <= 2 ? "fuzzy" : "related";
+}
+
+function uniqueResults(results: GeocodingResult[]) {
+  const seen = new Set<string>();
+  return results.filter((result) => {
+    const key = `${searchKey(result.name ?? primaryDisplayName(result))}|${result.countryCode ?? ""}|${Math.round(result.lat * 1000)}|${Math.round(result.lng * 1000)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function groupRows(rows: ReviewRow[]) {
+  const order: string[] = [];
+  const groups = new Map<string, ReviewRow[]>();
+  for (const row of rows) {
+    const label = row.groupLabel || "Needs review";
+    if (!groups.has(label)) {
+      groups.set(label, []);
+      order.push(label);
+    }
+    groups.get(label)!.push(row);
+  }
+  return order.map((label) => {
+    const groupRows = groups.get(label)!;
+    return {
+      label,
+      rows: groupRows,
+      ready: groupRows.filter((row) => row.status === "valid").length,
+      review: groupRows.filter((row) => row.status !== "valid").length,
+    };
+  });
 }
 
 function displayType(type?: string) {

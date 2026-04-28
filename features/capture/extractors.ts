@@ -362,6 +362,8 @@ export interface GeocodeOptions {
   near?: { lat: number; lng: number };
 }
 
+const geocodeCache = new Map<string, GeocodingResult[]>();
+
 export async function geocodeQuery(query: string, options: GeocodeOptions = {}): Promise<GeocodingResult[]> {
   const params = new URLSearchParams({
     q: query,
@@ -372,6 +374,8 @@ export async function geocodeQuery(query: string, options: GeocodeOptions = {}):
   if (options.viewbox) params.set("viewbox", options.viewbox.join(","));
   if (options.countryCodes?.length) params.set("countrycodes", options.countryCodes.join(","));
   const url = `https://nominatim.openstreetmap.org/search?${params.toString()}`;
+  const cacheKey = `nominatim:${url}`;
+  if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)!;
 
   try {
     const res = await fetch(url, {
@@ -394,14 +398,61 @@ export async function geocodeQuery(query: string, options: GeocodeOptions = {}):
       importance: item.importance,
     }));
 
-    if (!options.near) return mapped;
-    return mapped.sort((a, b) => {
+    const sorted = !options.near ? mapped : mapped.sort((a, b) => {
       const da = haversineKm(options.near!.lat, options.near!.lng, a.lat, a.lng);
       const db = haversineKm(options.near!.lat, options.near!.lng, b.lat, b.lng);
       return da - db;
     });
+    geocodeCache.set(cacheKey, sorted);
+    return sorted;
   } catch (e) {
     console.warn("Geocoding failed:", e);
+    return [];
+  }
+}
+
+export async function photonQuery(query: string, options: GeocodeOptions = {}): Promise<GeocodingResult[]> {
+  const params = new URLSearchParams({
+    q: query,
+    lang: "en",
+    limit: String(options.limit ?? 5),
+  });
+  if (options.near) {
+    params.set("lat", String(options.near.lat));
+    params.set("lon", String(options.near.lng));
+  }
+  const url = `https://photon.komoot.io/api/?${params.toString()}`;
+  const cacheKey = `photon:${url}`;
+  if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)!;
+
+  try {
+    const res = await fetch(url, {
+      headers: { "Accept-Language": "en", "User-Agent": "NomadNote/1.0" },
+    });
+    if (!res.ok) throw new Error("Photon request failed");
+    const data: PhotonResponse = await res.json();
+    const mapped = data.features.map((feature) => {
+      const [lng, lat] = feature.geometry.coordinates;
+      const props = feature.properties;
+      const city = props.city ?? props.town ?? props.village ?? props.county ?? props.state;
+      return {
+        lat,
+        lng,
+        displayName: [props.name, city, props.country].filter(Boolean).join(", "),
+        name: props.name,
+        city,
+        country: props.country,
+        countryCode: props.countrycode,
+        neighborhood: props.district,
+        address: [props.name, props.street, city, props.country].filter(Boolean).join(", "),
+        type: props.osm_value ?? props.osm_key,
+        importance: props.extent ? 0.75 : 0.5,
+      } satisfies GeocodingResult;
+    });
+    geocodeCache.set(cacheKey, mapped);
+    return mapped;
+  } catch (e) {
+    console.warn("Photon search failed:", e);
     return [];
   }
 }
@@ -451,6 +502,27 @@ interface NominatimResult {
     neighbourhood?: string;
     suburb?: string;
   };
+}
+
+interface PhotonResponse {
+  features: Array<{
+    geometry: { coordinates: [number, number] };
+    properties: {
+      name?: string;
+      city?: string;
+      town?: string;
+      village?: string;
+      county?: string;
+      state?: string;
+      country?: string;
+      countrycode?: string;
+      district?: string;
+      street?: string;
+      osm_key?: string;
+      osm_value?: string;
+      extent?: [number, number, number, number];
+    };
+  }>;
 }
 
 // ── Helper ───────────────────────────────────────────────────
