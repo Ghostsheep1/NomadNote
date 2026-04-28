@@ -7,14 +7,14 @@ Released: 2026-04-27
 ### Added
 
 - Paste list / Search one mode switch in the Add Place modal.
-- Floating autocomplete dropdown with richer result labels, type badges, and fuzzy match hints.
+- Unclipped floating autocomplete dropdown with richer result labels, type badges, and fuzzy match hints.
 - Stronger Central Europe ranking for Austria, Hungary, Czechia, Slovenia, Croatia, Bosnia and Herzegovina, Montenegro, Greece, and Germany.
 - Fuzzy corrections for common typos like `halstatt`, `viena`, `budapesht`, and `praga`.
 
 ### Improved
 
 - Add Place input is now compact, auto-growing, and capped at a comfortable height.
-- Placeholder copy is shorter, with examples moved below the input.
+- Placeholder copy is shorter and the inline example hint was removed for a quieter modal.
 - Preview CTA now shows the live count of pasted places.
 - Screenshot upload is visually secondary so batch preview remains the main path.
 

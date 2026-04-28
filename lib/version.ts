@@ -8,8 +8,8 @@ export const CHANGELOG = [
     changes: [
       "Made Add Place lighter with Paste list and Search one modes.",
       "Replaced the oversized text area with compact auto-growing input.",
-      "Moved examples below the input and shortened helper copy.",
-      "Added floating autocomplete results with richer place details.",
+      "Removed the inline example hint to keep the modal visually quieter.",
+      "Added unclipped floating autocomplete results with richer place details.",
       "Improved Central Europe biasing and fuzzy typo correction for common travel inputs.",
     ],
   },

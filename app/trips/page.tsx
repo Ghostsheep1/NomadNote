@@ -301,7 +301,7 @@ export default function TripPage() {
 
       {/* Capture dialog */}
       <Dialog open={captureOpen} onOpenChange={(open) => { setCaptureOpen(open); if (!open) setCapturePrefill(""); }}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="overflow-visible sm:max-w-lg">
           <DialogHeader><DialogTitle>Add a place</DialogTitle></DialogHeader>
           <CaptureInbox tripId={trip.id} initialInput={capturePrefill} onClose={() => { setCaptureOpen(false); setCapturePrefill(""); }} />
         </DialogContent>

@@ -263,7 +263,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Capture dialog */}
       <Dialog open={captureOpen} onOpenChange={(open) => !open && closeCapture()}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="overflow-visible sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Add a place</DialogTitle>
           </DialogHeader>
