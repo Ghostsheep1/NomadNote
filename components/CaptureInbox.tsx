@@ -289,9 +289,6 @@ export function CaptureInbox({ tripId, onClose, initialInput }: CaptureInboxProp
               rows={3}
               className="max-h-[120px] min-h-[86px] resize-none text-sm leading-5"
             />
-            <p className="mt-2 text-xs text-muted-foreground">
-              Hallstatt · Vienna · Budapest · Charles Bridge Prague
-            </p>
           </>
         ) : (
           <div className="relative">
