@@ -40,16 +40,16 @@ export function TripBrief({ trip, places }: TripBriefProps) {
     .slice(0, 3);
 
   return (
-    <section className="grid gap-3 border-b border-border bg-background px-3 py-3 sm:px-4">
+    <section className="grid gap-3 border-b-2 border-foreground bg-background px-3 py-3 sm:px-4">
       <TripStressRadar trip={trip} places={places} onAction={setFocus} />
       {focus && <RadarActionPanel action={focus} places={places} onClose={() => setFocus(null)} />}
 
       <div className="grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-2xl border border-border bg-card p-3 shadow-sm sm:p-4">
+        <div className="atlas-card rounded-md p-3 sm:p-4">
           <div className="mb-3 flex flex-col gap-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Travel brief</p>
-              <h2 className="font-display text-2xl font-semibold leading-none">What this trip is telling you</h2>
+              <p className="atlas-label">Travel brief</p>
+              <h2 className="font-display text-3xl font-black leading-none">What this trip is telling you</h2>
             </div>
             <Badge variant={overloaded ? "warning" : "success"}>
               {overloaded ? "Packed" : "Healthy pace"}
@@ -64,12 +64,12 @@ export function TripBrief({ trip, places }: TripBriefProps) {
           </div>
 
           <div className="mt-4">
-            <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="mb-2 flex items-center justify-between font-mono-custom text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
               <span>Visited progress</span>
               <span>{visited}/{total} places</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div className="h-2 overflow-hidden border border-foreground bg-muted">
+              <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
         </div>
@@ -88,7 +88,7 @@ export function TripBrief({ trip, places }: TripBriefProps) {
             tone={overloaded ? "watch" : "good"}
           />
           {topNeighborhoods.length > 0 && (
-            <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <div className="atlas-card rounded-md p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
                 <Compass className="h-4 w-4 text-primary" />
                 Neighborhood clusters
@@ -161,11 +161,11 @@ function RadarActionPanel({ action, places, onClose }: { action: StressAction; p
   }[action];
 
   return (
-    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3 shadow-sm sm:p-4">
+    <div className="rounded-md border-2 border-foreground bg-accent/35 p-3 shadow-[5px_5px_0_hsl(var(--foreground))] sm:p-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-primary">Radar action</p>
-          <h3 className="mt-1 text-base font-semibold">{content.title}</h3>
+          <p className="atlas-label text-primary">Radar action</p>
+          <h3 className="mt-1 text-lg font-extrabold">{content.title}</h3>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">{content.body}</p>
         </div>
         <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
@@ -189,12 +189,12 @@ function RadarActionPanel({ action, places, onClose }: { action: StressAction; p
 
 function BriefMetric({ icon, label, value }: { icon: ReactNode; label: string; value: number }) {
   return (
-    <div className="rounded-xl bg-muted/55 p-2.5 sm:p-3">
+    <div className="rounded-md border border-foreground bg-muted/55 p-2.5 sm:p-3">
       <div className="mb-2 flex items-center gap-2 text-muted-foreground [&>svg]:h-3.5 [&>svg]:w-3.5">
         {icon}
-        <span className="text-xs font-medium">{label}</span>
+        <span className="font-mono-custom text-[10px] font-semibold uppercase tracking-[0.12em]">{label}</span>
       </div>
-      <div className="text-lg font-bold tabular-nums sm:text-xl">{value}</div>
+      <div className="text-xl font-black tabular-nums sm:text-2xl">{value}</div>
     </div>
   );
 }
@@ -211,12 +211,12 @@ function Signal({
   tone: "good" | "watch";
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+    <div className="rounded-md border-2 border-foreground bg-card p-4 shadow-[4px_4px_0_hsl(var(--foreground))]">
       <div className="flex gap-3">
         <div
           className={cn(
-            "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl [&>svg]:h-4 [&>svg]:w-4",
-            tone === "good" ? "bg-secondary/10 text-secondary" : "bg-accent/20 text-accent-foreground"
+            "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md border border-foreground [&>svg]:h-4 [&>svg]:w-4",
+            tone === "good" ? "bg-secondary text-secondary-foreground" : "bg-accent text-accent-foreground"
           )}
         >
           {icon}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NomadNote compass stamp">
+  <rect width="512" height="512" rx="72" fill="#d8ff3e"/>
+  <rect x="26" y="26" width="460" height="460" rx="54" fill="none" stroke="#111217" stroke-width="28"/>
+  <circle cx="256" cy="256" r="132" fill="none" stroke="#111217" stroke-width="28"/>
+  <path d="M256 84v344M84 256h344M134 134l244 244M378 134 134 378" stroke="#111217" stroke-width="20" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="42" fill="#2557ff" stroke="#111217" stroke-width="22"/>
+  <path d="M256 138 294 250 256 374 218 250Z" fill="#ff5a3d" stroke="#111217" stroke-width="16" stroke-linejoin="round"/>
+</svg>

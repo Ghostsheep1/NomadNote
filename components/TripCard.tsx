@@ -58,21 +58,21 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
     >
       <Link href={`/trips?id=${encodeURIComponent(trip.id)}`} className="block group">
         <div className={cn(
-          "group/card relative overflow-hidden rounded-[22px] border bg-card transition-all duration-200",
-          "hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/25",
+          "group/card atlas-card relative overflow-hidden rounded-md transition-all duration-200",
+          "hover:-translate-y-1 hover:shadow-[3px_3px_0_hsl(var(--foreground))]",
           trip.archived && "opacity-60"
         )}>
-          <div className="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_12%_10%,hsl(var(--primary)/0.16),transparent_34%),radial-gradient(circle_at_88%_10%,hsl(var(--secondary)/0.16),transparent_32%)]" />
-          <div className="h-1.5 bg-gradient-to-r from-primary/70 via-accent/70 to-secondary/70" />
+          <div className="absolute inset-x-0 top-0 h-24 bg-[linear-gradient(115deg,hsl(var(--primary)/0.18)_0_30%,transparent_30%_48%,hsl(var(--accent)/0.26)_48%_68%,transparent_68%)]" />
+          <div className="h-2 border-b-2 border-foreground bg-[linear-gradient(90deg,hsl(var(--primary))_0_34%,hsl(var(--accent))_34%_67%,hsl(var(--secondary))_67%)]" />
 
           <div className="relative p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/80 text-3xl leading-none shadow-sm backdrop-blur">
+                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md border-2 border-foreground bg-accent text-3xl leading-none shadow-[3px_3px_0_hsl(var(--foreground))]">
                   {trip.emoji ?? "✈️"}
                 </span>
                 <div className="min-w-0">
-                  <h3 className="font-display font-semibold text-base leading-tight truncate group-hover:text-primary transition-colors">
+                  <h3 className="truncate font-display text-xl font-black leading-none transition-colors group-hover:text-primary">
                     {trip.name}
                   </h3>
                   {trip.description && (
@@ -144,8 +144,8 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
               <MiniStat icon={<MapPin />} label="Map-ready" value={`${mappedCount}/${placeCount || 0}`} />
             </div>
 
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+            <div className="mt-3 h-2 overflow-hidden rounded-none border border-foreground bg-muted">
+              <div className="h-full bg-primary transition-all" style={{ width: `${progress}%` }} />
             </div>
 
             <div className="flex items-center gap-2 mt-3">
@@ -168,12 +168,12 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
 
 function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
   return (
-    <div className="rounded-xl bg-background/75 px-3 py-2 shadow-sm ring-1 ring-border/60">
+    <div className="rounded-md border border-foreground bg-background/80 px-3 py-2">
       <div className="flex items-center gap-1.5 text-muted-foreground [&>svg]:h-3 [&>svg]:w-3">
         {icon}
-        <span className="text-[11px] font-medium">{label}</span>
+        <span className="font-mono-custom text-[10px] font-semibold uppercase tracking-[0.12em]">{label}</span>
       </div>
-      <div className="mt-1 text-sm font-bold tabular-nums">{value}</div>
+      <div className="mt-1 text-base font-black tabular-nums">{value}</div>
     </div>
   );
 }

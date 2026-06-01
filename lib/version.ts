@@ -1,6 +1,18 @@
-export const APP_VERSION = "1.3.3";
+export const APP_VERSION = "1.4.0";
 
 export const CHANGELOG = [
+  {
+    version: "1.4.0",
+    title: "Field atlas visual identity",
+    date: "2026-06-01",
+    changes: [
+      "Rebuilt the app identity around a custom compass-stamp logo and field atlas visual system.",
+      "Replaced the generic warm SaaS look with Fraunces, Manrope, cobalt, tide green, signal chartreuse, and heavier ink borders.",
+      "Redesigned the home hero, navigation, trip cards, radar, settings, buttons, badges, inputs, and dialogs.",
+      "Updated the PWA theme color and added a vector brand mark asset.",
+      "Kept the local-first workflows intact while making the interface feel more distinctive and portfolio-ready.",
+    ],
+  },
   {
     version: "1.3.3",
     title: "Europe importer reliability",

@@ -30,16 +30,16 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
   const radar = analyzeTripStress(trip, places);
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-sm sm:rounded-[28px]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,hsl(var(--primary)/0.18),transparent_34%),radial-gradient(circle_at_90%_30%,hsl(var(--secondary)/0.14),transparent_32%)]" />
+    <section className="atlas-card relative overflow-hidden rounded-md">
+      <div className="absolute inset-0 bg-[linear-gradient(118deg,hsl(var(--primary)/0.12)_0_22%,transparent_22%_56%,hsl(var(--accent)/0.2)_56%_72%,transparent_72%),repeating-linear-gradient(0deg,hsl(var(--foreground)/0.08)_0_1px,transparent_1px_24px)]" />
       <div className="relative grid gap-4 p-3 sm:gap-5 sm:p-5 xl:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-background/75 px-3 py-1 text-xs font-bold text-primary shadow-sm backdrop-blur">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-md border-2 border-foreground bg-primary px-3 py-1 font-mono-custom text-[10px] font-bold uppercase tracking-[0.14em] text-primary-foreground shadow-[3px_3px_0_hsl(var(--foreground))]">
             <Sparkles className="h-3.5 w-3.5" />
             NomadNote exclusive
           </div>
-          <h2 className="font-display text-[1.8rem] font-bold leading-none sm:text-3xl">Trip Stress Radar</h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          <h2 className="font-display text-[2rem] font-black leading-none sm:text-4xl">Trip Stress Radar</h2>
+          <p className="mt-2 text-sm font-medium leading-6 text-foreground/75">
             Most planners help you add more. This one spots what will make the trip feel bad, then gives you the next repair.
           </p>
 
@@ -49,9 +49,9 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
               <Badge variant={radar.score >= 68 ? "warning" : radar.score >= 38 ? "secondary" : "success"}>
                 {radar.label}
               </Badge>
-              <p className="mt-2 text-sm font-semibold">{radar.headline}</p>
-              <p className="mt-1 text-xs leading-5 text-muted-foreground">{radar.rescue}</p>
-              <p className="mt-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="mt-2 text-sm font-extrabold">{radar.headline}</p>
+              <p className="mt-1 text-xs font-medium leading-5 text-foreground/70">{radar.rescue}</p>
+              <p className="atlas-label mt-2">
                 {radar.confidence} confidence · updated {radar.lastUpdated}
               </p>
             </div>
@@ -60,20 +60,20 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
 
         <div className="grid gap-2 md:grid-cols-2">
           {radar.factors.map((factor) => (
-            <div key={factor.label} className="rounded-2xl border border-border/75 bg-background/75 p-3 shadow-sm backdrop-blur">
+            <div key={factor.label} className="rounded-md border-2 border-foreground bg-card/90 p-3 shadow-[3px_3px_0_hsl(var(--foreground))] backdrop-blur">
               <div className="mb-2 flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-sm font-semibold">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-muted text-muted-foreground [&>svg]:h-4 [&>svg]:w-4">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md border border-foreground bg-accent text-accent-foreground [&>svg]:h-4 [&>svg]:w-4">
                     {factor.icon}
                   </span>
                   {factor.label}
                 </div>
                 <span className="text-sm font-bold tabular-nums">{factor.value}</span>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+              <div className="h-2 overflow-hidden border border-foreground bg-muted">
                 <div
                   className={cn(
-                    "h-full rounded-full transition-all",
+                    "h-full transition-all",
                     factor.positive
                       ? factor.value >= 70 ? "bg-secondary" : factor.value >= 40 ? "bg-accent" : "bg-destructive"
                       : factor.value >= 70 ? "bg-destructive" : factor.value >= 40 ? "bg-accent" : "bg-secondary"
@@ -81,12 +81,12 @@ export function TripStressRadar({ trip, places, onAction }: TripStressRadarProps
                   style={{ width: `${factor.value}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs leading-5 text-muted-foreground" title={factor.definition}>{factor.note}</p>
+              <p className="mt-2 text-xs font-medium leading-5 text-foreground/70" title={factor.definition}>{factor.note}</p>
               <button
                 type="button"
                 onClick={() => onAction?.(factor.action)}
                 disabled={factor.actionDisabled}
-                className="mt-3 inline-flex min-h-8 items-center rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:border-primary/40 hover:bg-primary/10 disabled:cursor-default disabled:opacity-55 disabled:hover:border-border disabled:hover:bg-card"
+                className="mt-3 inline-flex min-h-8 items-center rounded-md border border-foreground bg-card px-3 font-mono-custom text-[10px] font-bold uppercase tracking-[0.12em] text-foreground transition-colors hover:bg-accent disabled:cursor-default disabled:opacity-55 disabled:hover:bg-card"
               >
                 {factor.actionLabel}
               </button>
@@ -102,15 +102,15 @@ function StressDial({ score }: { score: number }) {
   const angle = Math.round((score / 100) * 360);
   return (
     <div
-      className="grid h-20 w-20 flex-shrink-0 place-items-center rounded-full p-2 sm:h-24 sm:w-24"
+      className="grid h-20 w-20 flex-shrink-0 place-items-center rounded-md border-2 border-foreground p-2 shadow-[4px_4px_0_hsl(var(--foreground))] sm:h-24 sm:w-24"
       style={{
         background: `conic-gradient(hsl(var(--primary)) ${angle}deg, hsl(var(--muted)) ${angle}deg)`,
       }}
     >
-      <div className="grid h-full w-full place-items-center rounded-full bg-card shadow-inner">
+      <div className="grid h-full w-full place-items-center rounded-md border border-foreground bg-card">
         <div className="text-center">
           <div className="text-xl font-black tabular-nums sm:text-2xl">{score}</div>
-          <div className="text-[10px] font-bold uppercase tracking-wide text-muted-foreground">stress</div>
+          <div className="font-mono-custom text-[9px] font-bold uppercase tracking-wide text-muted-foreground">stress</div>
         </div>
       </div>
     </div>

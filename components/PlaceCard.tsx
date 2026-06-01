@@ -138,7 +138,7 @@ export function PlaceCard({ place, onEdit, onDelete, compact, dragging, selected
 
       {/* Visited overlay checkmark */}
       {place.visited && (
-        <div className="absolute top-2 right-2 w-5 h-5 bg-sage-500 rounded-full flex items-center justify-center">
+        <div className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-md border border-foreground bg-secondary">
           <Check className="h-3 w-3 text-white" />
         </div>
       )}

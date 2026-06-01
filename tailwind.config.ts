@@ -12,9 +12,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ["Cormorant Garamond", "Outfit", "Georgia", "serif"],
-        sans: ["Outfit", "system-ui", "sans-serif"],
-        mono: ["DM Mono", "monospace"],
+        display: ["Fraunces", "Manrope", "Georgia", "serif"],
+        sans: ["Manrope", "system-ui", "sans-serif"],
+        mono: ["IBM Plex Mono", "ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -50,29 +50,23 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        terracotta: {
-          50: "#fdf4f0",
-          100: "#fbe5da",
-          200: "#f6c9b5",
-          300: "#efa588",
-          400: "#e5755a",
-          500: "#c8582f",   
-          600: "#a3431f",
-          700: "#82341a",
-          800: "#662a17",
-          900: "#542416",
+        cobalt: {
+          50: "#eef2ff",
+          100: "#dce5ff",
+          500: "#2557ff",
+          600: "#163bcc",
+          900: "#071449",
         },
-        sage: {
-          50: "#f4f7f1",
-          100: "#e6eddf",
-          200: "#cddbc0",
-          300: "#adc399",
-          400: "#88a771",
-          500: "#648c50",
-          600: "#4d703c",
-          700: "#3c5830",
-          800: "#304727",
-          900: "#273b21",
+        signal: {
+          100: "#eaff80",
+          300: "#d8ff3e",
+          500: "#b9ef00",
+          900: "#273800",
+        },
+        tide: {
+          100: "#d8fbf4",
+          500: "#009b8f",
+          700: "#00635d",
         },
       },
       borderRadius: {

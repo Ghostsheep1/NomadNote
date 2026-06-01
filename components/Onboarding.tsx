@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Map, Lock, Zap, ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUIStore } from "@/store/ui";
 import { seedDemoData } from "@/lib/demo";
@@ -60,7 +60,7 @@ export function Onboarding() {
   };
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-background/95 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background/95 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md">
         <AnimatePresence mode="wait">
           <motion.div
@@ -69,30 +69,30 @@ export function Onboarding() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.25 }}
-            className="flex flex-col items-center text-center gap-6"
+            className="flex flex-col items-center gap-6 text-center"
           >
             {/* Step indicator */}
             <div className="flex gap-1.5">
               {STEPS.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === step ? "w-6 bg-primary" : i < step ? "w-3 bg-primary/40" : "w-3 bg-muted"
+                  className={`h-2 border border-foreground transition-all duration-300 ${
+                    i === step ? "w-8 bg-primary" : i < step ? "w-4 bg-accent" : "w-4 bg-muted"
                   }`}
                 />
               ))}
             </div>
 
             {/* Icon */}
-            <div className="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-md border-2 border-foreground bg-accent shadow-[6px_6px_0_hsl(var(--foreground))]">
               <span className="text-5xl">{current.icon}</span>
             </div>
 
             {/* Content */}
             <div className="space-y-3">
-              <h2 className="font-display text-2xl font-bold">{current.title}</h2>
-              <p className="text-muted-foreground leading-relaxed">{current.description}</p>
-              <div className="inline-flex items-center gap-1.5 text-xs font-medium text-primary bg-primary/10 px-3 py-1.5 rounded-full">
+              <h2 className="font-display text-3xl font-black">{current.title}</h2>
+              <p className="font-medium leading-relaxed text-foreground/75">{current.description}</p>
+              <div className="inline-flex items-center gap-1.5 rounded-md border border-foreground bg-card px-3 py-1.5 font-mono-custom text-[10px] font-semibold uppercase tracking-[0.12em] text-primary">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 {current.highlight}
               </div>

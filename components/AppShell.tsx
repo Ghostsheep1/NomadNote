@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { useUIStore } from "@/store/ui";
 import { useTripsStore } from "@/store/trips";
 import { CommandPalette } from "@/components/CommandPalette";
+import { BrandMark } from "@/components/BrandMark";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { CaptureInbox } from "@/components/CaptureInbox";
 import { Toaster } from "sonner";
@@ -143,24 +144,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
       <aside className={cn(
-        "sticky top-0 hidden h-screen flex-shrink-0 border-r border-border bg-card transition-all duration-200 overflow-hidden md:flex md:flex-col",
+        "sticky top-0 hidden h-screen flex-shrink-0 border-r-2 border-foreground bg-card transition-all duration-200 overflow-hidden md:flex md:flex-col",
         sidebarOpen ? "w-60" : "w-0 md:w-14"
       )}>
         {/* Logo */}
-        <div className={cn("flex items-center gap-2.5 px-4 h-14 border-b border-border flex-shrink-0", !sidebarOpen && "md:justify-center md:px-0")}>
-          {sidebarOpen && (
-            <Link href="/" className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-                <span className="text-primary-foreground text-sm font-bold">N</span>
-              </div>
-              <span className="font-display font-semibold text-base truncate">NomadNote</span>
-            </Link>
-          )}
-          {!sidebarOpen && (
-            <Link href="/" className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center hidden md:flex">
-              <span className="text-primary-foreground text-xs font-bold">N</span>
-            </Link>
-          )}
+        <div className={cn("flex h-16 flex-shrink-0 items-center gap-2.5 border-b-2 border-foreground px-4", !sidebarOpen && "md:justify-center md:px-0")}>
+          <BrandMark collapsed={!sidebarOpen} />
         </div>
 
         {/* Nav */}
@@ -179,10 +168,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   key={trip.id}
                   href={`/trips?id=${encodeURIComponent(trip.id)}`}
                   className={cn(
-                    "flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors",
+                    "flex items-center gap-2.5 rounded-md border border-transparent px-2 py-2 text-sm font-semibold transition-colors",
                     pathname === "/trips"
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "border-foreground bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:border-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <span className="text-base flex-shrink-0">{trip.emoji ?? "✈️"}</span>
@@ -195,7 +184,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         {/* Quick add + command palette */}
         {sidebarOpen && (
-          <div className="p-3 border-t border-border flex flex-col gap-2">
+          <div className="flex flex-col gap-2 border-t-2 border-foreground p-3">
             <Button onClick={openActions} size="sm" className="w-full justify-start gap-2">
               <Plus className="h-3.5 w-3.5" /> Add Place
             </Button>
@@ -208,7 +197,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <span className="flex items-center gap-2">
                 <Command className="h-3.5 w-3.5" /> Command
               </span>
-              <kbd className="text-xs font-mono bg-muted px-1 rounded">⌘K</kbd>
+              <kbd className="rounded border border-foreground bg-accent px-1 font-mono text-xs text-accent-foreground">⌘K</kbd>
             </Button>
             <p className="px-1 pt-1 text-[11px] leading-4 text-muted-foreground">
               v{APP_VERSION} · Designed by Henrique Ribeiro
@@ -220,17 +209,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main */}
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="h-14 border-b border-border bg-card/80 backdrop-blur-sm flex items-center px-3 sm:px-4 gap-2 sm:gap-3 flex-shrink-0">
+        <header className="h-16 flex-shrink-0 border-b-2 border-foreground bg-card/90 px-3 backdrop-blur-sm sm:px-4 flex items-center gap-2 sm:gap-3">
           <Button size="icon-sm" variant="ghost" onClick={toggleSidebar} className="hidden flex-shrink-0 md:inline-flex">
             {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeft className="h-4 w-4" />}
           </Button>
 
-          <Link href="/" className="flex items-center gap-2 min-w-0 md:hidden">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground text-sm font-bold">N</span>
-            </div>
-            <span className="font-display text-lg font-semibold truncate">NomadNote</span>
-          </Link>
+          <BrandMark className="md:hidden" />
 
           <div className="flex-1" />
 
@@ -238,11 +222,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             variant="ghost"
             size="sm"
             onClick={toggleCommandPalette}
-            className="hidden md:flex items-center gap-2 text-muted-foreground text-sm border border-border rounded-lg px-3 py-1.5 hover:bg-muted"
+            className="hidden items-center gap-2 rounded-md border-2 border-foreground px-3 py-1.5 text-sm font-bold text-foreground shadow-[3px_3px_0_hsl(var(--foreground))] hover:bg-accent md:flex"
           >
             <Command className="h-3.5 w-3.5" />
             <span>Search…</span>
-            <kbd className="ml-2 text-xs font-mono bg-muted px-1.5 rounded">⌘K</kbd>
+            <kbd className="ml-2 rounded bg-foreground px-1.5 font-mono text-xs text-background">⌘K</kbd>
           </Button>
 
           <Button size="icon-sm" variant="ghost" onClick={toggleCommandPalette} className="md:hidden flex-shrink-0">
@@ -397,8 +381,8 @@ function ActionButton({
   onClick: () => void;
 }) {
   return (
-    <button onClick={onClick} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors hover:bg-muted">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
+    <button onClick={onClick} className="flex items-center gap-3 rounded-md border-2 border-foreground bg-card p-3 text-left shadow-[4px_4px_0_hsl(var(--foreground))] transition-all hover:-translate-y-0.5 hover:bg-accent">
+      <span className="grid h-10 w-10 place-items-center rounded-md border-2 border-foreground bg-primary text-primary-foreground [&>svg]:h-4 [&>svg]:w-4">{icon}</span>
       <span>
         <span className="block text-sm font-semibold">{label}</span>
         <span className="block text-xs text-muted-foreground">{description}</span>
@@ -409,7 +393,7 @@ function ActionButton({
 
 function ImportStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg bg-muted/60 px-2 py-2">
+    <div className="rounded-md border border-foreground bg-accent/60 px-2 py-2">
       <div className="font-bold tabular-nums">{value}</div>
       <div className="text-muted-foreground">{label}</div>
     </div>
@@ -423,8 +407,8 @@ function SidebarLink({ href, icon, label, open, active }: {
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors",
-        active ? "bg-primary/10 text-primary font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        "flex items-center gap-2.5 rounded-md border border-transparent px-2 py-2 text-sm font-semibold transition-colors",
+        active ? "border-foreground bg-primary text-primary-foreground" : "text-muted-foreground hover:border-foreground hover:bg-muted hover:text-foreground",
         !open && "md:justify-center md:px-0"
       )}
     >
@@ -444,7 +428,7 @@ function MobileNav({
   activeTrip?: Trip | null;
 }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t-2 border-foreground bg-card/95 px-3 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-2 shadow-[0_-8px_0_hsl(var(--foreground)/0.14)] backdrop-blur md:hidden">
       <div className="mx-auto grid max-w-md grid-cols-4 gap-2">
         <MobileNavLink href="/" active={pathname === "/"} icon={<Home className="h-4 w-4" />} label="Trips" />
         <MobileNavLink
@@ -455,7 +439,7 @@ function MobileNav({
         />
         <button
           onClick={openActions}
-          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl bg-primary px-2 text-xs font-semibold text-primary-foreground shadow-sm"
+          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-md border-2 border-foreground bg-accent px-2 text-xs font-extrabold text-accent-foreground shadow-[3px_3px_0_hsl(var(--foreground))]"
         >
           <Plus className="h-4 w-4" />
           Add
@@ -481,8 +465,8 @@ function MobileNavLink({
     <Link
       href={href}
       className={cn(
-        "flex min-h-12 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-xs font-semibold transition-colors",
-        active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md border border-transparent px-2 text-xs font-bold transition-colors",
+        active ? "border-foreground bg-primary text-primary-foreground" : "text-muted-foreground hover:border-foreground hover:bg-muted hover:text-foreground"
       )}
     >
       {icon}

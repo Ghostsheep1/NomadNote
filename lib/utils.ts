@@ -144,11 +144,11 @@ export function formatPriceLevel(priceLevel: PriceLevel, currency = "USD"): stri
 }
 
 export const PRICE_COLORS: Record<PriceLevel, string> = {
-  free: "text-sage-600 dark:text-sage-400",
+  free: "text-secondary",
   budget: "text-foreground",
-  moderate: "text-amber-600 dark:text-amber-400",
-  expensive: "text-terracotta-600 dark:text-terracotta-400",
-  luxury: "text-purple-600 dark:text-purple-400",
+  moderate: "text-accent-foreground",
+  expensive: "text-destructive",
+  luxury: "text-primary",
 };
 
 export const PRIORITY_LABELS: Record<Priority, string> = {
@@ -178,24 +178,24 @@ export const TIME_ICONS: Record<TimeOfDay, string> = {
 // ── Category colors for map markers ─────────────────────────
 
 export const CATEGORY_COLORS: Record<PlaceCategory, string> = {
-  restaurant: "#c8582f",
-  cafe: "#8b6914",
-  bar: "#7c3aed",
-  accommodation: "#1d6b99",
-  attraction: "#c8582f",
-  museum: "#6b5b2e",
-  park: "#648c50",
-  shopping: "#d97706",
+  restaurant: "#ff5a3d",
+  cafe: "#8a5a00",
+  bar: "#2557ff",
+  accommodation: "#00635d",
+  attraction: "#2557ff",
+  museum: "#111217",
+  park: "#009b8f",
+  shopping: "#b9ef00",
   transport: "#374151",
-  viewpoint: "#0891b2",
-  beach: "#0891b2",
-  nightlife: "#7c3aed",
-  market: "#d97706",
+  viewpoint: "#009b8f",
+  beach: "#00a6d6",
+  nightlife: "#163bcc",
+  market: "#d8ff3e",
   street: "#4b5563",
-  religious: "#854d0e",
-  nature: "#648c50",
-  entertainment: "#db2777",
-  health: "#16a34a",
+  religious: "#8a5a00",
+  nature: "#009b8f",
+  entertainment: "#ff5a3d",
+  health: "#009b8f",
   other: "#6b7280",
 };
 

@@ -53,12 +53,12 @@ export default function HomePage() {
       />
 
       {/* Toolbar */}
-      <div className="rounded-2xl border border-border bg-card p-3 shadow-sm">
+      <div className="atlas-card rounded-md p-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search trips…"
-            className="h-10 border-transparent bg-muted/60 pl-9 shadow-none focus-visible:bg-background"
+            className="h-10 bg-muted/60 pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -67,12 +67,12 @@ export default function HomePage() {
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div>
-          <h2 className="font-display text-2xl font-semibold">{showArchived ? "Archived trips" : "Active trips"}</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="font-display text-4xl font-black leading-none">{showArchived ? "Archived trips" : "Active trips"}</h2>
+          <p className="atlas-label mt-1">
             {filtered.length} visible · {active.length} active · {archived.length} archived
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1 sm:flex">
+        <div className="grid grid-cols-2 gap-1 rounded-md border-2 border-foreground bg-muted p-1 sm:flex">
           {[
             { label: `Active`, value: false },
             { label: `Archived`, value: true },
@@ -80,8 +80,8 @@ export default function HomePage() {
             <button
               key={String(value)}
               onClick={() => setShowArchived(value)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
-                showArchived === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+              className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-sm font-extrabold transition-all ${
+                showArchived === value ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -106,11 +106,11 @@ export default function HomePage() {
           animate={{ opacity: 1 }}
           className="text-center py-16 flex flex-col items-center gap-4"
         >
-          <div className="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-md border-2 border-foreground bg-accent shadow-[5px_5px_0_hsl(var(--foreground))]">
             <Map className="h-10 w-10 text-muted-foreground/40" />
           </div>
           <div>
-            <p className="font-display text-xl font-semibold">
+            <p className="font-display text-3xl font-black">
               {search ? "No trips match your search" : showArchived ? "No archived trips" : "No trips yet"}
             </p>
             <p className="text-muted-foreground mt-1 text-sm">

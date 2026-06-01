@@ -1,5 +1,28 @@
 # Changelog
 
+## v1.4.0 - Field Atlas Visual Identity
+
+Released: 2026-06-01
+
+### Added
+
+- Custom compass-stamp brand mark for NomadNote.
+- Field atlas visual system with inked borders, offset shadows, map-grid texture, and stamp-like labels.
+- New font stack: Fraunces for display, Manrope for UI, IBM Plex Mono for operational labels.
+- New palette: cobalt blue, tide green, signal chartreuse, coral, ink, and paper.
+
+### Redesigned
+
+- Home hero, metric cards, app shell, sidebar, mobile nav, quick actions, trip cards, Trip Stress Radar, Travel Brief, Settings, buttons, badges, inputs, and dialogs.
+- PWA theme color and manifest brand asset.
+
+### Validation
+
+- `npm run build`
+- `npm run build:static`
+- `npm test -- --runInBand`
+- `npm audit --audit-level=high`
+
 ## v1.3.3 - Europe Importer Reliability
 
 Released: 2026-04-28

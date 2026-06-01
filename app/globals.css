@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,600..900,25,1&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,48 +6,48 @@
 
 @layer base {
   :root {
-    --background: 36 20% 97%;
-    --foreground: 24 10% 12%;
-    --card: 0 0% 100%;
-    --card-foreground: 24 10% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 12%;
-    --primary: 16 65% 42%;
-    --primary-foreground: 36 20% 97%;
-    --secondary: 84 18% 40%;
-    --secondary-foreground: 36 20% 97%;
-    --muted: 36 15% 92%;
-    --muted-foreground: 24 8% 46%;
-    --accent: 38 70% 58%;
-    --accent-foreground: 24 10% 12%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 36 20% 97%;
-    --border: 36 12% 88%;
-    --input: 36 12% 88%;
-    --ring: 16 65% 42%;
-    --radius: 0.625rem;
+    --background: 48 45% 96%;
+    --foreground: 230 18% 8%;
+    --card: 44 38% 98%;
+    --card-foreground: 230 18% 8%;
+    --popover: 44 38% 98%;
+    --popover-foreground: 230 18% 8%;
+    --primary: 228 100% 55%;
+    --primary-foreground: 48 45% 96%;
+    --secondary: 176 100% 30%;
+    --secondary-foreground: 48 45% 96%;
+    --muted: 46 22% 88%;
+    --muted-foreground: 230 9% 38%;
+    --accent: 70 100% 55%;
+    --accent-foreground: 230 18% 8%;
+    --destructive: 8 86% 55%;
+    --destructive-foreground: 48 45% 96%;
+    --border: 230 14% 16%;
+    --input: 230 14% 16%;
+    --ring: 228 100% 55%;
+    --radius: 0.35rem;
   }
 
   .dark {
-    --background: 24 12% 9%;
-    --foreground: 36 15% 92%;
-    --card: 24 12% 12%;
-    --card-foreground: 36 15% 92%;
-    --popover: 24 12% 12%;
-    --popover-foreground: 36 15% 92%;
-    --primary: 16 60% 52%;
-    --primary-foreground: 24 12% 9%;
-    --secondary: 84 20% 45%;
-    --secondary-foreground: 24 12% 9%;
-    --muted: 24 10% 18%;
-    --muted-foreground: 24 8% 55%;
-    --accent: 38 65% 55%;
-    --accent-foreground: 24 12% 9%;
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 36 15% 92%;
-    --border: 24 10% 20%;
-    --input: 24 10% 20%;
-    --ring: 16 60% 52%;
+    --background: 229 28% 7%;
+    --foreground: 48 45% 94%;
+    --card: 228 24% 10%;
+    --card-foreground: 48 45% 94%;
+    --popover: 228 24% 10%;
+    --popover-foreground: 48 45% 94%;
+    --primary: 228 100% 68%;
+    --primary-foreground: 229 28% 7%;
+    --secondary: 176 80% 46%;
+    --secondary-foreground: 229 28% 7%;
+    --muted: 226 18% 17%;
+    --muted-foreground: 48 15% 68%;
+    --accent: 70 100% 58%;
+    --accent-foreground: 229 28% 7%;
+    --destructive: 8 80% 62%;
+    --destructive-foreground: 229 28% 7%;
+    --border: 48 24% 82%;
+    --input: 48 24% 82%;
+    --ring: 228 100% 68%;
   }
 }
 
@@ -61,16 +61,19 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Outfit', system-ui, sans-serif;
+    font-family: 'Manrope', system-ui, sans-serif;
     background:
-      radial-gradient(circle at 12% -10%, hsl(var(--primary) / 0.10), transparent 28rem),
-      radial-gradient(circle at 100% 0%, hsl(var(--secondary) / 0.10), transparent 24rem),
+      linear-gradient(90deg, hsl(var(--foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(0deg, hsl(var(--foreground) / 0.04) 1px, transparent 1px),
+      linear-gradient(135deg, hsl(var(--primary) / 0.12), transparent 38%),
+      linear-gradient(315deg, hsl(var(--accent) / 0.12), transparent 42%),
       hsl(var(--background));
+    background-size: 44px 44px, 44px 44px, auto, auto, auto;
   }
   html {
     -webkit-text-size-adjust: 100%;
   }
-  h1, h2, h3 { font-family: 'Cormorant Garamond', 'Outfit', Georgia, serif; }
+  h1, h2, h3 { font-family: 'Fraunces', 'Manrope', Georgia, serif; }
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
@@ -78,26 +81,41 @@
 
 @layer utilities {
   .font-display {
-    font-family: 'Cormorant Garamond', 'Outfit', Georgia, serif;
-    letter-spacing: 0.01em;
+    font-family: 'Fraunces', 'Manrope', Georgia, serif;
+    font-variation-settings: "SOFT" 25, "WONK" 1;
+    letter-spacing: 0;
   }
-  .font-mono-custom { font-family: 'DM Mono', monospace; }
+  .font-mono-custom { font-family: 'IBM Plex Mono', monospace; }
 
   .travel-hero-surface {
     background:
-      linear-gradient(135deg, hsl(var(--primary) / 0.11), transparent 38%),
-      linear-gradient(215deg, hsl(var(--secondary) / 0.13), transparent 36%),
-      repeating-linear-gradient(90deg, hsl(var(--border) / 0.28) 0 1px, transparent 1px 84px),
-      repeating-linear-gradient(0deg, hsl(var(--border) / 0.22) 0 1px, transparent 1px 84px);
-    mask-image: linear-gradient(90deg, black, black 72%, transparent 100%);
+      linear-gradient(110deg, hsl(var(--primary) / 0.16) 0 18%, transparent 18% 30%, hsl(var(--accent) / 0.24) 30% 44%, transparent 44%),
+      repeating-linear-gradient(90deg, hsl(var(--foreground) / 0.16) 0 1px, transparent 1px 72px),
+      repeating-linear-gradient(0deg, hsl(var(--foreground) / 0.12) 0 1px, transparent 1px 72px);
   }
 
   .nomad-action {
-    @apply inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-background/80 px-4 text-sm font-semibold text-foreground shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/25 hover:bg-card hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md border-2 border-foreground bg-card px-4 text-sm font-extrabold text-foreground shadow-[4px_4px_0_hsl(var(--foreground))] transition-all hover:-translate-y-0.5 hover:translate-x-0.5 hover:shadow-[2px_2px_0_hsl(var(--foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
   }
 
   .nomad-action-primary {
-    @apply border-primary bg-primary text-primary-foreground hover:bg-primary/90;
+    @apply border-foreground bg-primary text-primary-foreground;
+  }
+
+  .atlas-card {
+    @apply border-2 border-foreground bg-card shadow-[6px_6px_0_hsl(var(--foreground))];
+  }
+
+  .atlas-label {
+    @apply font-mono-custom text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .atlas-rule {
+    background-image: repeating-linear-gradient(90deg, hsl(var(--foreground)) 0 10px, transparent 10px 16px);
+  }
+
+  .brand-stamp {
+    @apply border-2 border-foreground bg-accent text-accent-foreground shadow-[3px_3px_0_hsl(var(--foreground))];
   }
 
   .no-scrollbar::-webkit-scrollbar { display: none; }

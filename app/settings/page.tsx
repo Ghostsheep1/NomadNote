@@ -47,10 +47,10 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-3 py-5 sm:px-4 sm:py-8">
-      <h1 className="font-display text-4xl font-bold leading-none mb-2 sm:text-5xl">Settings</h1>
-      <p className="text-muted-foreground mb-8">Customize NomadNote to your preferences.</p>
+      <h1 className="mb-2 font-display text-5xl font-black leading-none sm:text-6xl">Settings</h1>
+      <p className="atlas-label mb-8">Device-only controls, theme, and release log.</p>
 
-      <div className="mb-8 p-5 rounded-xl bg-primary/5 border border-primary/20">
+      <div className="atlas-card mb-8 rounded-md p-5">
         <div className="flex items-start gap-3">
           <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
@@ -70,18 +70,18 @@ export default function SettingsPage() {
       </div>
 
       <section className="mb-8">
-        <h2 className="font-display text-2xl font-semibold mb-4">Appearance</h2>
+        <h2 className="mb-4 font-display text-3xl font-black">Appearance</h2>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <Label>Theme</Label>
-          <div className="flex gap-1 bg-muted p-1 rounded-lg">
+          <div className="flex gap-1 rounded-md border-2 border-foreground bg-muted p-1">
             {([
               { value: "light" as const, icon: <Sun className="h-3.5 w-3.5" />, label: "Light" },
               { value: "system" as const, icon: <Monitor className="h-3.5 w-3.5" />, label: "System" },
               { value: "dark" as const, icon: <Moon className="h-3.5 w-3.5" />, label: "Dark" },
             ]).map(({ value, icon, label }) => (
               <button key={value} onClick={() => setTheme(value)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  settings.theme === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground"
+                className={`flex items-center gap-1.5 rounded-sm px-3 py-1.5 text-xs font-extrabold transition-all ${
+                  settings.theme === value ? "bg-accent text-accent-foreground" : "text-muted-foreground"
                 }`}
               >
                 {icon} {label}
@@ -94,7 +94,7 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section className="mb-8">
-        <h2 className="font-display text-2xl font-semibold mb-4">Regional</h2>
+        <h2 className="mb-4 font-display text-3xl font-black">Regional</h2>
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div>
@@ -128,9 +128,9 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section className="mb-8">
-        <h2 className="font-display text-2xl font-semibold mb-1">Data management</h2>
+        <h2 className="mb-1 font-display text-3xl font-black">Data management</h2>
         <p className="text-sm text-muted-foreground mb-4">All data lives in this browser only.</p>
-        <div className="mb-3 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex flex-col gap-3 rounded-md border-2 border-foreground bg-card p-4 shadow-[4px_4px_0_hsl(var(--foreground))] sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium">Reset demo data</p>
             <p className="text-xs text-muted-foreground">Reload pristine Tokyo and Lisbon samples without deleting your personal trips</p>
@@ -139,7 +139,7 @@ export default function SettingsPage() {
             <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reset demo
           </Button>
         </div>
-        <div className="flex flex-col gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-md border-2 border-foreground bg-destructive/10 p-4 shadow-[4px_4px_0_hsl(var(--foreground))] sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-medium text-destructive">Clear all data</p>
             <p className="text-xs text-muted-foreground">Permanently delete all trips, places, and settings</p>
@@ -153,7 +153,7 @@ export default function SettingsPage() {
       <Separator className="mb-8" />
 
       <section>
-        <h2 className="font-display text-2xl font-semibold mb-4">About</h2>
+        <h2 className="mb-4 font-display text-3xl font-black">About</h2>
         <div className="text-sm text-muted-foreground space-y-2">
           <p>NomadNote v{APP_VERSION} · Designed and built by Henrique Ribeiro</p>
           <p>Built with Next.js, Dexie, MapLibre GL, and Capacitor</p>
@@ -165,10 +165,10 @@ export default function SettingsPage() {
       <Separator className="my-8" />
 
       <section>
-        <h2 className="font-display text-2xl font-semibold mb-4">Version history</h2>
+        <h2 className="mb-4 font-display text-3xl font-black">Version history</h2>
         <div className="space-y-3">
           {CHANGELOG.map((release) => (
-            <div key={release.version} className="rounded-xl border border-border bg-card p-4">
+            <div key={release.version} className="rounded-md border-2 border-foreground bg-card p-4 shadow-[4px_4px_0_hsl(var(--foreground))]">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="text-sm font-semibold">v{release.version} · {release.title}</p>

@@ -105,7 +105,7 @@ export default function TripPage() {
   return (
     <div className="flex min-h-full flex-col">
       {/* Trip header */}
-      <div className="border-b border-border bg-card px-3 pt-4 pb-0 sm:px-4 sm:pt-5">
+      <div className="border-b-2 border-foreground bg-card px-3 pt-4 pb-0 sm:px-4 sm:pt-5">
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3 min-w-0">
             <button onClick={() => router.push("/")} className="mt-1 text-muted-foreground hover:text-foreground transition-colors">
@@ -113,10 +113,10 @@ export default function TripPage() {
             </button>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{trip.emoji}</span>
-                <h1 className="truncate font-display text-2xl font-bold leading-none sm:text-3xl">{trip.name}</h1>
+                <span className="grid h-11 w-11 place-items-center rounded-md border-2 border-foreground bg-accent text-2xl shadow-[3px_3px_0_hsl(var(--foreground))]">{trip.emoji}</span>
+                <h1 className="truncate font-display text-4xl font-black leading-none sm:text-5xl">{trip.name}</h1>
               </div>
-              <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
+              <div className="mt-2 flex flex-wrap items-center gap-3 font-mono-custom text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 {trip.startDate && (
                   <span><Calendar className="inline h-3 w-3 mr-1" />{formatDate(trip.startDate, "MMM d")} – {trip.endDate ? formatDate(trip.endDate, "MMM d, yyyy") : "?"} · {duration}d</span>
                 )}
@@ -155,7 +155,7 @@ export default function TripPage() {
               key={value}
               onClick={() => setActiveTripTab(value)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap sm:px-4",
+                "flex items-center gap-1.5 border-b-4 px-3 py-2.5 text-sm font-extrabold transition-colors whitespace-nowrap sm:px-4",
                 tab === value
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
@@ -173,7 +173,7 @@ export default function TripPage() {
         {tab === "places" && (
           <div className="flex min-h-full flex-col">
             <TripBrief trip={trip} places={places} />
-            <div className="flex items-center gap-2 border-b border-border px-3 py-3 sm:px-4">
+            <div className="flex items-center gap-2 border-b-2 border-foreground px-3 py-3 sm:px-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                 <Input

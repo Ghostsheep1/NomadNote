@@ -4,6 +4,7 @@ import { ensureSettings } from "@/lib/db";
 import { useTripsStore } from "@/store/trips";
 import { useUIStore } from "@/store/ui";
 import { Onboarding } from "@/components/Onboarding";
+import { BrandMark } from "@/components/BrandMark";
 
 export function DBProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
@@ -22,11 +23,9 @@ export function DBProvider({ children }: { children: React.ReactNode }) {
   if (!ready) {
     return (
       <div className="flex h-dvh items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">N</span>
-          </div>
-          <p className="text-sm text-muted-foreground animate-pulse">Loading…</p>
+        <div className="flex flex-col items-center gap-4">
+          <BrandMark />
+          <p className="atlas-label animate-pulse">Opening field atlas…</p>
         </div>
       </div>
     );
